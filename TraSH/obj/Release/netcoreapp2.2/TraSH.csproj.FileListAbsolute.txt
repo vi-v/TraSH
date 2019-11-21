@@ -1,0 +1,10 @@
+C:\Users\slpxa\Documents\Projects\TraSH\TraSH\bin\Release\netcoreapp2.2\TraSH.deps.json
+C:\Users\slpxa\Documents\Projects\TraSH\TraSH\bin\Release\netcoreapp2.2\TraSH.runtimeconfig.json
+C:\Users\slpxa\Documents\Projects\TraSH\TraSH\bin\Release\netcoreapp2.2\TraSH.runtimeconfig.dev.json
+C:\Users\slpxa\Documents\Projects\TraSH\TraSH\bin\Release\netcoreapp2.2\TraSH.dll
+C:\Users\slpxa\Documents\Projects\TraSH\TraSH\bin\Release\netcoreapp2.2\TraSH.pdb
+C:\Users\slpxa\Documents\Projects\TraSH\TraSH\obj\Release\netcoreapp2.2\TraSH.csproj.CoreCompileInputs.cache
+C:\Users\slpxa\Documents\Projects\TraSH\TraSH\obj\Release\netcoreapp2.2\TraSH.AssemblyInfoInputs.cache
+C:\Users\slpxa\Documents\Projects\TraSH\TraSH\obj\Release\netcoreapp2.2\TraSH.AssemblyInfo.cs
+C:\Users\slpxa\Documents\Projects\TraSH\TraSH\obj\Release\netcoreapp2.2\TraSH.dll
+C:\Users\slpxa\Documents\Projects\TraSH\TraSH\obj\Release\netcoreapp2.2\TraSH.pdb
