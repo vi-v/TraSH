@@ -1,30 +1,29 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\slpxa\\Documents\\Projects\\TraSH\\TraSH\\TraSH.csproj": {}
+    "/Users/vados/projects/TraSH/TraSH/TraSH.csproj": {}
   },
   "projects": {
-    "C:\\Users\\slpxa\\Documents\\Projects\\TraSH\\TraSH\\TraSH.csproj": {
+    "/Users/vados/projects/TraSH/TraSH/TraSH.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\slpxa\\Documents\\Projects\\TraSH\\TraSH\\TraSH.csproj",
+        "projectUniqueName": "/Users/vados/projects/TraSH/TraSH/TraSH.csproj",
         "projectName": "TraSH",
-        "projectPath": "C:\\Users\\slpxa\\Documents\\Projects\\TraSH\\TraSH\\TraSH.csproj",
-        "packagesPath": "C:\\Users\\slpxa\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\slpxa\\Documents\\Projects\\TraSH\\TraSH\\obj\\",
+        "projectPath": "/Users/vados/projects/TraSH/TraSH/TraSH.csproj",
+        "packagesPath": "/Users/vados/.nuget/packages/",
+        "outputPath": "/Users/vados/projects/TraSH/TraSH/obj/",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+          "/usr/local/share/dotnet/sdk/NuGetFallbackFolder"
         ],
         "configFilePaths": [
-          "C:\\Users\\slpxa\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "/Users/vados/.config/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "netcoreapp2.2"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "/Users/vados/PCLLAB/Bunker": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {

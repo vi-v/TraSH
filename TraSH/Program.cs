@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Medallion.Shell;
 using static Medallion.Shell.Shell;
 
@@ -25,17 +26,15 @@ namespace TraSH
                 //Exit(Enumerable.Empty<string>());
             };
 
-            while (true)
+            LineReader lineReader = new LineReader();
+
+            lineReader.LineReceived += delegate (object _, string e)
             {
-                Console.Write("TraSH> ");
-                string rawCmd = Console.ReadLine();
-
-                if (string.IsNullOrEmpty(rawCmd))
+                if (string.IsNullOrEmpty(e))
                 {
-                    continue;
+                    return;
                 }
-
-                IEnumerable<string> cmdArgs = rawCmd.Split(' ');
+                IEnumerable<string> cmdArgs = e.Split(' ');
                 if (builtInsMap.ContainsKey(cmdArgs.First()))
                 {
                     ExecuteBuiltInCommand(cmdArgs);
@@ -44,7 +43,9 @@ namespace TraSH
                 {
                     ExecuteExternalCommand(cmdArgs);
                 }
-            }
+            };
+
+            lineReader.Start();
         }
 
         private static void ExecuteBuiltInCommand(IEnumerable<string> args)
@@ -55,16 +56,19 @@ namespace TraSH
 
         private static void ExecuteExternalCommand(IEnumerable<string> args)
         {
-            RunCmd(string.Join(' ', args), Environment.CurrentDirectory, Console.Out);
+            RunCmd(args, Environment.CurrentDirectory, Console.Out);
         }
 
-        private static void RunCmd(string cmd, string working_dir, TextWriter outputWriter)
+        private static void RunCmd(IEnumerable<string> args, string working_dir, TextWriter outputWriter)
         {
             Process proc = new Process();
             ProcessStartInfo psi = new ProcessStartInfo();
             psi.WorkingDirectory = working_dir;
-            psi.FileName = "cmd.exe";
-            psi.Arguments = "/c " + cmd;
+            psi.FileName = string.Join(' ', args);
+            //psi.FileName = args.First();
+            //args.Skip(1).ToList().ForEach(a => psi.ArgumentList.Add(a));
+            //psi.FileName = "cmd.exe";
+            //psi.Arguments = "/c " + cmd;
             //psi.WindowStyle = ProcessWindowStyle.Hidden;
             psi.RedirectStandardOutput = true;
 
