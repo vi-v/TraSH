@@ -10,7 +10,7 @@
     {
         public EventHandler<string> LineReceived;
         private readonly StringBuilder buffer;
-        private readonly Dictionary<ConsoleKey, Action<ConsoleKeyInfo>> consoleKeyMap;
+        private readonly IReadOnlyDictionary<ConsoleKey, Action<ConsoleKeyInfo>> consoleKeyMap;
         private readonly Cursor cursor;
 
         public LineEditor()
