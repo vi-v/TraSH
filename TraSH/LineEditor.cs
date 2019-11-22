@@ -20,6 +20,7 @@
             {
                 { ConsoleKey.Enter, this.HandleEnter },
                 { ConsoleKey.Backspace, this.HandleBackspace },
+                { ConsoleKey.Delete, this.HandleDelete },
                 { ConsoleKey.LeftArrow, this.HandleLeftArrow },
                 { ConsoleKey.RightArrow, this.HandleRightArrow },
                 { ConsoleKey.UpArrow, this.HandleUpArrow },
@@ -83,6 +84,28 @@
                 Console.Write(" ");
 
                 for (int i = 0; i <= delCount; i++)
+                {
+                    this.cursor.MoveLeft();
+                }
+            }
+        }
+
+        private void HandleDelete(ConsoleKeyInfo c)
+        {
+            if (this.buffer.Length > 0 && this.cursor.RelativePosition < this.buffer.Length)
+            {
+                int delPosition = this.cursor.RelativePosition;
+                int delCount = this.buffer.Length - this.cursor.RelativePosition;
+                this.buffer.Remove(delPosition, 1);
+
+                for (int i = this.cursor.RelativePosition; i < this.buffer.Length; i++)
+                {
+                    Console.Write(this.buffer[i]);
+                }
+
+                Console.Write(" ");
+
+                for (int i = 0; i < delCount; i++)
                 {
                     this.cursor.MoveLeft();
                 }
