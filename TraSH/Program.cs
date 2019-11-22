@@ -26,14 +26,17 @@ namespace TraSH
                 //Exit(Enumerable.Empty<string>());
             };
 
-            LineReader lineReader = new LineReader();
+            LineEditor lineEditor = new LineEditor();
 
-            lineReader.LineReceived += delegate (object _, string e)
+            lineEditor.LineReceived += delegate (object _, string e)
             {
                 if (string.IsNullOrEmpty(e))
                 {
+                    Console.WriteLine();
+                    lineEditor.PrintPrompt();
                     return;
                 }
+
                 IEnumerable<string> cmdArgs = e.Split(' ');
                 if (builtInsMap.ContainsKey(cmdArgs.First()))
                 {
@@ -43,9 +46,11 @@ namespace TraSH
                 {
                     ExecuteExternalCommand(cmdArgs);
                 }
+                lineEditor.PrintPrompt();
             };
 
-            lineReader.Start();
+            lineEditor.PrintPrompt();
+            lineEditor.Start();
         }
 
         private static void ExecuteBuiltInCommand(IEnumerable<string> args)
@@ -64,9 +69,8 @@ namespace TraSH
             Process proc = new Process();
             ProcessStartInfo psi = new ProcessStartInfo();
             psi.WorkingDirectory = working_dir;
-            psi.FileName = string.Join(' ', args);
-            //psi.FileName = args.First();
-            //args.Skip(1).ToList().ForEach(a => psi.ArgumentList.Add(a));
+            psi.FileName = args.First();
+            args.Skip(1).ToList().ForEach(a => psi.ArgumentList.Add(a));
             //psi.FileName = "cmd.exe";
             //psi.Arguments = "/c " + cmd;
             //psi.WindowStyle = ProcessWindowStyle.Hidden;
