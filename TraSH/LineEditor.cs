@@ -25,8 +25,11 @@
                 { ConsoleKey.RightArrow, this.HandleRightArrow },
                 { ConsoleKey.UpArrow, this.HandleUpArrow },
                 { ConsoleKey.DownArrow, this.HandleDownArrow },
-                { ConsoleKey.Home,  this.HandleHome},
-                { ConsoleKey.End,  this.HandleEnd},
+                { ConsoleKey.Home,  this.HandleHome },
+                { ConsoleKey.End,  this.HandleEnd },
+                { ConsoleKey.V, this.HandlePaste },
+                { ConsoleKey.LeftWindows, this.IgnoreCharacter },
+                { ConsoleKey.RightWindows, this.IgnoreCharacter }
             };
 
             this.cursor = new Cursor(this.buffer, this.GetPrompt().Length);
@@ -133,12 +136,37 @@
             this.cursor.MoveLast();
         }
 
+        private void HandlePaste(ConsoleKeyInfo c)
+        {
+            if ((c.Modifiers & ConsoleModifiers.Control) != 0)
+            {
+                string clipboardText = TextCopy.Clipboard.GetText();
+                this.InsertStringAtCursor(clipboardText);
+            }
+            else
+            {
+                this.HandleCharacter(c);
+            }
+        }
+
         private void HandleCharacter(ConsoleKeyInfo c)
         {
+            this.InsertStringAtCursor(c.KeyChar.ToString());
+        }
+
+        private void IgnoreCharacter(ConsoleKeyInfo c) { }
+
+        private void InsertStringAtCursor(string text)
+        {
+            string remainingBufText = this.buffer.ToString(this.cursor.RelativePosition, this.buffer.Length - this.cursor.RelativePosition);
+            this.buffer.Insert(this.cursor.RelativePosition, text);
+
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write(c.KeyChar);
+            Console.Write(text);
+            Console.Write(remainingBufText);
             Console.ResetColor();
-            this.buffer.Append(c.KeyChar);
+
+            this.cursor.MoveLeft(remainingBufText.Length);
         }
 
         private string GetPrompt()
