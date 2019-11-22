@@ -77,18 +77,7 @@
                 int delCount = this.buffer.Length - this.cursor.RelativePosition;
                 this.buffer.Remove(delPosition, 1);
                 this.cursor.MoveLeft();
-
-                for (int i = this.cursor.RelativePosition; i < this.buffer.Length; i++)
-                {
-                    Console.Write(this.buffer[i]);
-                }
-
-                Console.Write(" ");
-
-                for (int i = 0; i <= delCount; i++)
-                {
-                    this.cursor.MoveLeft();
-                }
+                this.ReplaceBufferAndMoveCursor(delCount + 1);
             }
         }
 
@@ -99,19 +88,19 @@
                 int delPosition = this.cursor.RelativePosition;
                 int delCount = this.buffer.Length - this.cursor.RelativePosition;
                 this.buffer.Remove(delPosition, 1);
-
-                for (int i = this.cursor.RelativePosition; i < this.buffer.Length; i++)
-                {
-                    Console.Write(this.buffer[i]);
-                }
-
-                Console.Write(" ");
-
-                for (int i = 0; i < delCount; i++)
-                {
-                    this.cursor.MoveLeft();
-                }
+                this.ReplaceBufferAndMoveCursor(delCount);
             }
+        }
+
+        private void ReplaceBufferAndMoveCursor(int delCount)
+        {
+            for (int i = this.cursor.RelativePosition; i < this.buffer.Length; i++)
+            {
+                Console.Write(this.buffer[i]);
+            }
+
+            Console.Write(" ");
+            this.cursor.MoveLeft(delCount);
         }
 
         private void HandleLeftArrow(ConsoleKeyInfo c)
@@ -174,17 +163,27 @@
 
             public void MoveLeft()
             {
-                if (this.RelativePosition > 0 && this.RelativePosition > 0)
+                this.MoveLeft(1);
+            }
+
+            public void MoveLeft(int count)
+            {
+                if (this.RelativePosition > 0)
                 {
-                    Console.SetCursorPosition(this.Position - 1, Console.CursorTop);
+                    Console.SetCursorPosition(Math.Max(this.Position - count, this.promptLength), Console.CursorTop);
                 }
             }
 
             public void MoveRight()
             {
+                this.MoveRight(1);
+            }
+
+            public void MoveRight(int count)
+            {
                 if (this.RelativePosition < this.buffer.Length)
                 {
-                    Console.SetCursorPosition(this.Position + 1, Console.CursorTop);
+                    Console.SetCursorPosition(Math.Min(this.Position + count, this.buffer.Length + this.promptLength), Console.CursorTop);
                 }
             }
 
