@@ -25,6 +25,8 @@
                 { ConsoleKey.RightArrow, this.HandleRightArrow },
                 { ConsoleKey.UpArrow, this.HandleUpArrow },
                 { ConsoleKey.DownArrow, this.HandleDownArrow },
+                { ConsoleKey.Home,  this.HandleHome},
+                { ConsoleKey.End,  this.HandleEnd},
             };
 
             this.cursor = new Cursor(this.buffer, this.GetPrompt().Length);
@@ -132,6 +134,16 @@
 
         }
 
+        private void HandleHome(ConsoleKeyInfo c)
+        {
+            this.cursor.MoveFront();
+        }
+
+        private void HandleEnd(ConsoleKeyInfo c)
+        {
+            this.cursor.MoveLast();
+        }
+
         private void HandleCharacter(ConsoleKeyInfo c)
         {
             Console.ForegroundColor = ConsoleColor.Red;
@@ -174,6 +186,16 @@
                 {
                     Console.SetCursorPosition(this.Position + 1, Console.CursorTop);
                 }
+            }
+
+            public void MoveFront()
+            {
+                Console.SetCursorPosition(this.promptLength, Console.CursorTop);
+            }
+
+            public void MoveLast()
+            {
+                Console.SetCursorPosition(this.promptLength + this.buffer.Length, Console.CursorTop);
             }
         }
     }
