@@ -16,6 +16,7 @@ namespace TraSH
         {
             { "cls", new Clear() },
             { "clear", new Clear() },
+            { "cd", new ChangeDirectory() },
             { "exit", new Exit() }
         };
 
@@ -58,7 +59,11 @@ namespace TraSH
         {
             BuiltInCommand command = builtInsMap[args.First()];
             string output = command.Execute(args.Skip(1));
-            Console.WriteLine(output);
+
+            if (!string.IsNullOrEmpty(output))
+            {
+                Console.WriteLine(output);
+            }
         }
 
         private static void ExecuteExternalCommand(IEnumerable<string> args)
