@@ -71,44 +71,44 @@ namespace TraSH
             string commandName = args.First();
             List<string> arguments = args.Skip(1).ToList();
 
-            FileInfo fileInfo = new FileInfo(commandName);
-            if (true)
+            Process proc = new Process();
+            ProcessStartInfo psi = new ProcessStartInfo();
+            psi.WorkingDirectory = Environment.CurrentDirectory;
+            psi.FileName = commandName;
+            arguments.ForEach(a => psi.ArgumentList.Add(a));
+            //psi.FileName = "cmd.exe";
+            //psi.Arguments = "/c " + cmd;
+            //psi.WindowStyle = ProcessWindowStyle.Hidden;
+            psi.RedirectStandardOutput = true;
+
+            psi.RedirectStandardError = true;
+
+            psi.UseShellExecute = false;
+
+            proc.StartInfo = psi;
+            proc.OutputDataReceived += new DataReceivedEventHandler((_, e) =>
             {
-                Process proc = new Process();
-                ProcessStartInfo psi = new ProcessStartInfo();
-                psi.WorkingDirectory = Environment.CurrentDirectory;
-                psi.FileName = commandName;
-                arguments.ForEach(a => psi.ArgumentList.Add(a));
-                //psi.FileName = "cmd.exe";
-                //psi.Arguments = "/c " + cmd;
-                //psi.WindowStyle = ProcessWindowStyle.Hidden;
-                psi.RedirectStandardOutput = true;
-
-                psi.RedirectStandardError = true;
-
-                psi.UseShellExecute = false;
-
-                proc.StartInfo = psi;
-                proc.OutputDataReceived += new DataReceivedEventHandler((_, e) =>
+                if (!string.IsNullOrEmpty(e.Data))
                 {
-                    if (!string.IsNullOrEmpty(e.Data))
-                    {
-                        outputWriter.WriteLine(e.Data);
-                    }
-                });
-                proc.ErrorDataReceived += new DataReceivedEventHandler((_, e) =>
+                    outputWriter.WriteLine(e.Data);
+                }
+            });
+            proc.ErrorDataReceived += new DataReceivedEventHandler((_, e) =>
+            {
+                if (!string.IsNullOrEmpty(e.Data))
                 {
-                    if (!string.IsNullOrEmpty(e.Data))
-                    {
-                        outputWriter.WriteLine(e.Data);
-                    }
-                });
+                    outputWriter.WriteLine(e.Data);
+                }
+            });
+
+            try
+            {
                 proc.Start();
                 proc.BeginOutputReadLine();
                 proc.BeginErrorReadLine();
                 proc.WaitForExit();
             }
-            else
+            catch (System.ComponentModel.Win32Exception e)
             {
                 Console.WriteLine($"{commandName}: Command not found");
             }
