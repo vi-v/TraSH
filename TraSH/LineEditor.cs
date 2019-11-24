@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using System.Text;
     using System.Threading;
@@ -32,7 +33,7 @@
                 { ConsoleKey.RightWindows, this.IgnoreCharacter }
             };
 
-            this.cursor = new Cursor(this.buffer, this.GetPrompt().Length);
+            this.cursor = new Cursor(this.buffer, this.GetPrompt);
         }
 
         public void Start()
@@ -171,21 +172,21 @@
 
         private string GetPrompt()
         {
-            return "TraSH> ";
+            return $"{Environment.MachineName}:{new DirectoryInfo(Environment.CurrentDirectory).Name} > ";
         }
 
         private class Cursor
         {
             private readonly StringBuilder buffer;
-            private readonly int promptLength;
+            private readonly Func<string> getPromptFunc;
 
-            public Cursor(StringBuilder buffer, int promptLength)
+            public Cursor(StringBuilder buffer, Func<string> getPromptFunc)
             {
-                this.promptLength = promptLength;
+                this.getPromptFunc = getPromptFunc;
                 this.buffer = buffer;
             }
 
-            public int RelativePosition { get => Console.CursorLeft - this.promptLength; }
+            public int RelativePosition { get => Console.CursorLeft - this.PromptLength; }
 
             public int Position { get => Console.CursorLeft; }
 
@@ -198,7 +199,7 @@
             {
                 if (this.RelativePosition > 0)
                 {
-                    Console.SetCursorPosition(Math.Max(this.Position - count, this.promptLength), Console.CursorTop);
+                    Console.SetCursorPosition(Math.Max(this.Position - count, this.PromptLength), Console.CursorTop);
                 }
             }
 
@@ -211,19 +212,21 @@
             {
                 if (this.RelativePosition < this.buffer.Length)
                 {
-                    Console.SetCursorPosition(Math.Min(this.Position + count, this.buffer.Length + this.promptLength), Console.CursorTop);
+                    Console.SetCursorPosition(Math.Min(this.Position + count, this.buffer.Length + this.PromptLength), Console.CursorTop);
                 }
             }
 
             public void MoveFront()
             {
-                Console.SetCursorPosition(this.promptLength, Console.CursorTop);
+                Console.SetCursorPosition(this.PromptLength, Console.CursorTop);
             }
 
             public void MoveLast()
             {
-                Console.SetCursorPosition(this.promptLength + this.buffer.Length, Console.CursorTop);
+                Console.SetCursorPosition(this.PromptLength + this.buffer.Length, Console.CursorTop);
             }
+
+            private int PromptLength { get => this.getPromptFunc().Length; }
         }
     }
 }
