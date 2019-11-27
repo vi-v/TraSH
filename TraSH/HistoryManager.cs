@@ -5,6 +5,7 @@
     using System.IO;
     using System.Linq;
     using System.Text;
+    using System.Text.RegularExpressions;
     using System.Threading.Tasks;
 
     public class HistoryManager
@@ -49,12 +50,19 @@
             return this.historySet;
         }
 
+        public IEnumerable<string> GetFileHistory()
+        {
+            return File.ReadAllLines(this.filepath);
+        }
+
         public void Add(string newLine)
         {
+            string escapedLine = this.Escape(newLine);
+
             bool shouldWriteAll = false;
-            if (this.historySet.Contains(newLine))
+            if (this.historySet.Contains(escapedLine))
             {
-                this.historySet.Remove(newLine);
+                this.historySet.Remove(escapedLine);
                 File.WriteAllText(this.filepath, string.Empty);
                 shouldWriteAll = true;
             }
@@ -63,12 +71,17 @@
             {
                 if (shouldWriteAll)
                 {
-                    this.historySet.ToList().ForEach(fileWriter.WriteLine);
+                    this.historySet.ToList().ForEach(s => fileWriter.WriteLine(this.Escape(s)));
                 }
 
-                this.historySet.Add(newLine);
-                fileWriter.WriteLine(newLine);
+                this.historySet.Add(escapedLine);
+                fileWriter.WriteLine(escapedLine);
             }
+        }
+
+        private string Escape(string input)
+        {
+            return Regex.Replace(input, @"\r\n?|\n", "\\n");
         }
     }
 }

@@ -58,7 +58,7 @@ namespace TraSHTest
             hm.Start().Wait();
             hm.Add("newcommand");
             IEnumerable<string> actualHistory = hm.GetHistory();
-            IEnumerable<string> fileHistory = new List<string>(File.ReadAllLines(filepath));
+            IEnumerable<string> fileHistory = hm.GetFileHistory();
 
             actualHistory.Should().BeEquivalentTo(new List<string> { "newcommand" });
             fileHistory.Should().BeEquivalentTo(new List<string> { "newcommand" });
@@ -81,7 +81,7 @@ namespace TraSHTest
             hm.Start().Wait();
             hm.Add("newcommand");
             IEnumerable<string> actualHistory = hm.GetHistory();
-            IEnumerable<string> fileHistory = new List<string>(File.ReadAllLines(filepath));
+            IEnumerable<string> fileHistory = hm.GetFileHistory();
 
             actualHistory.Should().BeEquivalentTo(expectedHistory);
             fileHistory.Should().BeEquivalentTo(expectedHistory);
@@ -109,7 +109,7 @@ namespace TraSHTest
             this.mockHistory.ForEach(s => hm.Add(s));
             hm.Add("ls -al");
             IEnumerable<string> actualHistory = hm.GetHistory();
-            IEnumerable<string> fileHistory = new List<string>(File.ReadAllLines(filepath));
+            IEnumerable<string> fileHistory = hm.GetFileHistory();
 
             actualHistory.Should().BeEquivalentTo(expectedHistory, options => options.WithStrictOrdering());
             fileHistory.Should().BeEquivalentTo(expectedHistory, options => options.WithStrictOrdering());
@@ -118,18 +118,12 @@ namespace TraSHTest
         }
 
         [TestMethod]
-        public void TestMaximumLengthExceeded()
-        {
-            Assert.Fail();
-        }
-
-        [TestMethod]
         public void TestMultilineLine()
         {
             string filepath = Path.GetTempFileName();
             List<string> expectedHistory = new List<string> {
-                "echo \"line 1\n line 2\n line 3\"",
-                "echo \"line 4\n line 5\""
+                "echo \"line 1\\n line 2\\n line 3\"",
+                "echo \"line 4\\n line 5\""
             };
             using (TextWriter tw = new StreamWriter(filepath))
             {
