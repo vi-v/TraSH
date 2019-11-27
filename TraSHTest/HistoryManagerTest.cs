@@ -69,13 +69,52 @@ namespace TraSHTest
         [TestMethod]
         public void TestAddUniqueLine()
         {
-            Assert.Fail();
+            string filepath = Path.GetTempFileName();
+            List<string> expectedHistory = new List<string>(mockHistory);
+            expectedHistory.Add("newcommand");
+            using (TextWriter tw = new StreamWriter(filepath))
+            {
+                this.mockHistory.ForEach(s => tw.WriteLine(s));
+            }
+            var hm = new HistoryManager(filepath);
+
+            hm.Start().Wait();
+            hm.Add("newcommand");
+            IEnumerable<string> actualHistory = hm.GetHistory();
+            IEnumerable<string> fileHistory = new List<string>(File.ReadAllLines(filepath));
+
+            actualHistory.Should().BeEquivalentTo(expectedHistory);
+            fileHistory.Should().BeEquivalentTo(expectedHistory);
+
+            File.Delete(filepath);
         }
 
         [TestMethod]
         public void TestAddDuplicateLine()
         {
-            Assert.Fail();
+            string filepath = Path.GetTempFileName();
+            List<string> expectedHistory = new List<string>
+            {
+                @"cd C:\Users\testuser\Documents\Projects\TraSH\TraSH\bin\Debug\netcoreapp2.2",
+                "git commit -m \"Initial commit\"",
+                "ls -al"
+            };
+            using (TextWriter tw = new StreamWriter(filepath))
+            {
+                this.mockHistory.ForEach(s => tw.WriteLine(s));
+            }
+            var hm = new HistoryManager(filepath);
+
+            hm.Start().Wait();
+            this.mockHistory.ForEach(s => hm.Add(s));
+            hm.Add("ls -al");
+            IEnumerable<string> actualHistory = hm.GetHistory();
+            IEnumerable<string> fileHistory = new List<string>(File.ReadAllLines(filepath));
+
+            actualHistory.Should().BeEquivalentTo(expectedHistory, options => options.WithStrictOrdering());
+            fileHistory.Should().BeEquivalentTo(expectedHistory, options => options.WithStrictOrdering());
+
+            File.Delete(filepath);
         }
 
         [TestMethod]

@@ -51,17 +51,22 @@
 
         public void Add(string newLine)
         {
+            bool shouldWriteAll = false;
             if (this.historySet.Contains(newLine))
             {
                 this.historySet.Remove(newLine);
-                File.WriteAllLines(
-                    this.filepath,
-                    File.ReadLines(this.filepath).Where(l => l != newLine).ToList());
+                File.WriteAllText(this.filepath, string.Empty);
+                shouldWriteAll = true;
             }
-            this.historySet.Add(newLine);
 
-            using (StreamWriter fileWriter = new StreamWriter(this.filepath))
+            using (StreamWriter fileWriter = new StreamWriter(this.filepath, append: true))
             {
+                if (shouldWriteAll)
+                {
+                    this.historySet.ToList().ForEach(fileWriter.WriteLine);
+                }
+
+                this.historySet.Add(newLine);
                 fileWriter.WriteLine(newLine);
             }
         }
