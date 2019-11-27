@@ -126,7 +126,26 @@ namespace TraSHTest
         [TestMethod]
         public void TestMultilineLine()
         {
-            Assert.Fail();
+            string filepath = Path.GetTempFileName();
+            List<string> expectedHistory = new List<string> {
+                "echo \"line 1\n line 2\n line 3\"",
+                "echo \"line 4\n line 5\""
+            };
+            using (TextWriter tw = new StreamWriter(filepath))
+            {
+                tw.WriteLine("echo \"line 1\\n line 2\\n line 3\"");
+            }
+            var hm = new HistoryManager(filepath);
+
+            hm.Start().Wait();
+            hm.Add("echo \"line 4\n line 5\"");
+            IEnumerable<string> actualHistory = hm.GetHistory();
+            IEnumerable<string> fileHistory = hm.GetFileHistory();
+
+            actualHistory.Should().BeEquivalentTo(expectedHistory, options => options.WithStrictOrdering());
+            fileHistory.Should().BeEquivalentTo(expectedHistory, options => options.WithStrictOrdering());
+
+            File.Delete(filepath);
         }
     }
 }
