@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using TraSH;
 
@@ -11,11 +12,13 @@ namespace TraSHTest
     [TestClass]
     public class HistoryManagerTest
     {
-        private readonly List<string> mockHistory = new List<string>
+        private static readonly List<string> mockHistory = new List<string>
         {
+            "git rest --hard",
             @"cd C:\Users\testuser\Documents\Projects\TraSH\TraSH\bin\Debug\netcoreapp2.2",
             "ls -al",
-            "git commit -m \"Initial commit\""
+            "git commit -m \"Initial commit\"",
+            "git status",
         };
 
         [TestMethod]
@@ -37,14 +40,14 @@ namespace TraSHTest
             string filepath = Path.GetTempFileName();
             using (TextWriter tw = new StreamWriter(filepath))
             {
-                this.mockHistory.ForEach(s => tw.WriteLine(s));
+                mockHistory.ForEach(s => tw.WriteLine(s));
             }
             var hm = new HistoryManager(filepath);
 
             hm.Start().Wait();
             IEnumerable<string> actualHistory = hm.GetHistory();
 
-            actualHistory.Should().BeEquivalentTo(this.mockHistory, options => options.WithStrictOrdering());
+            actualHistory.Should().BeEquivalentTo(mockHistory, options => options.WithStrictOrdering());
 
             File.Delete(filepath);
         }
@@ -70,11 +73,11 @@ namespace TraSHTest
         public void TestAddUniqueLine()
         {
             string filepath = Path.GetTempFileName();
-            List<string> expectedHistory = new List<string>(mockHistory);
+            List<string> expectedHistory = mockHistory.ToList();
             expectedHistory.Add("newcommand");
             using (TextWriter tw = new StreamWriter(filepath))
             {
-                this.mockHistory.ForEach(s => tw.WriteLine(s));
+                mockHistory.ForEach(s => tw.WriteLine(s));
             }
             var hm = new HistoryManager(filepath);
 
@@ -93,20 +96,12 @@ namespace TraSHTest
         public void TestAddDuplicateLine()
         {
             string filepath = Path.GetTempFileName();
-            List<string> expectedHistory = new List<string>
-            {
-                @"cd C:\Users\testuser\Documents\Projects\TraSH\TraSH\bin\Debug\netcoreapp2.2",
-                "git commit -m \"Initial commit\"",
-                "ls -al"
-            };
-            using (TextWriter tw = new StreamWriter(filepath))
-            {
-                this.mockHistory.ForEach(s => tw.WriteLine(s));
-            }
+            List<string> expectedHistory = mockHistory.ToList();
+            expectedHistory.Add("ls -al");
             var hm = new HistoryManager(filepath);
 
             hm.Start().Wait();
-            this.mockHistory.ForEach(s => hm.Add(s));
+            mockHistory.ForEach(s => hm.Add(s));
             hm.Add("ls -al");
             IEnumerable<string> actualHistory = hm.GetHistory();
             IEnumerable<string> fileHistory = hm.GetFileHistory();
@@ -140,6 +135,51 @@ namespace TraSHTest
             fileHistory.Should().BeEquivalentTo(expectedHistory, options => options.WithStrictOrdering());
 
             File.Delete(filepath);
+        }
+
+        [TestMethod]
+        public void TestAutocompletePrefixExists()
+        {
+            string filepath = Path.GetTempFileName();
+            List<string> expectedSuggestions = mockHistory.Where(q => q.StartsWith("git", StringComparison.Ordinal)).ToList();
+            var hm = new HistoryManager(filepath);
+
+            hm.Start().Wait();
+            mockHistory.ForEach(hm.Add);
+            IEnumerable<string> actualSuggestions = hm.AutoComplete("git");
+
+            actualSuggestions.Should().BeEquivalentTo(expectedSuggestions);
+
+            File.Delete(filepath);
+        }
+
+        [TestMethod]
+        public void TestAutocompletePrefixDoesNotExist()
+        {
+            string filepath = Path.GetTempFileName();
+            var hm = new HistoryManager(filepath);
+
+            hm.Start().Wait();
+            mockHistory.ForEach(hm.Add);
+            IEnumerable<string> actualSuggestions = hm.AutoComplete("shouldnotexist");
+
+            actualSuggestions.Should().BeEquivalentTo(Enumerable.Empty<string>());
+
+            File.Delete(filepath);
+        }
+
+        [TestMethod]
+        public void TestAutocompleteNoPrefix()
+        {
+            string filepath = Path.GetTempFileName();
+            List<string> expectedHistory = mockHistory.ToList();
+            expectedHistory.Reverse();
+
+            var hm = new HistoryManager(filepath);
+            mockHistory.ForEach(hm.Add);
+            IEnumerable<string> actualSuggestions = hm.AutoComplete();
+
+            actualSuggestions.Should().BeEquivalentTo(expectedHistory, options => options.WithStrictOrdering());
         }
     }
 }

@@ -10,12 +10,17 @@
     public class LineEditor
     {
         public EventHandler<string> LineReceived;
+
+        private readonly HistoryManager historyManager;
         private readonly StringBuilder buffer;
         private readonly IReadOnlyDictionary<ConsoleKey, Action<ConsoleKeyInfo>> consoleKeyMap;
         private readonly Cursor cursor;
+        private IEnumerator<string> suggestionCache;
+        private bool useSuggestionCache;
 
         public LineEditor()
         {
+            this.historyManager = new HistoryManager();
             this.buffer = new StringBuilder();
             this.consoleKeyMap = new Dictionary<ConsoleKey, Action<ConsoleKeyInfo>>
             {
@@ -34,6 +39,7 @@
             };
 
             this.cursor = new Cursor(this.buffer, this.GetPrompt);
+            this.useSuggestionCache = false;
         }
 
         public void Start()
@@ -64,7 +70,9 @@
             Console.WriteLine();
             if (this.buffer.Length > 0)
             {
-                this.LineReceived?.Invoke(this, this.buffer.ToString());
+                string newline = this.buffer.ToString();
+                this.historyManager.Add(newline);
+                this.LineReceived?.Invoke(this, newline);
                 this.buffer.Clear();
             }
             else
@@ -119,7 +127,29 @@
 
         private void HandleUpArrow(ConsoleKeyInfo c)
         {
+            string currentBuffer = this.buffer.ToString();
+            if (!this.useSuggestionCache)
+            {
+                if (string.IsNullOrEmpty(currentBuffer))
+                {
+                    this.suggestionCache = this.historyManager.AutoComplete().GetEnumerator();
+                }
+                else
+                {
+                    this.suggestionCache = this.historyManager.AutoComplete(currentBuffer).GetEnumerator();
+                }
 
+                this.useSuggestionCache = true;
+            }
+
+            string suggestion = this.suggestionCache.Current;
+            this.suggestionCache.MoveNext();
+
+            int oldCursorPosition = this.cursor.RelativePosition;
+            this.cursor.MoveFront();
+            this.buffer.Remove(oldCursorPosition, this.buffer.Length - oldCursorPosition);
+            this.InsertStringAtCursor(suggestion);
+            this.cursor.MoveRight(oldCursorPosition);
         }
 
         private void HandleDownArrow(ConsoleKeyInfo c)
@@ -152,6 +182,7 @@
 
         private void HandleCharacter(ConsoleKeyInfo c)
         {
+            this.useSuggestionCache = false;
             this.InsertStringAtCursor(c.KeyChar.ToString());
         }
 
