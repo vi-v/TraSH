@@ -7,6 +7,7 @@
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
+    using TraSH.builtins;
 
     public class LineEditor
     {
@@ -37,6 +38,7 @@
                 { ConsoleKey.Home,  this.HandleHome },
                 { ConsoleKey.End,  this.HandleEnd },
                 { ConsoleKey.V, this.HandlePaste },
+                { ConsoleKey.D, this.HandleExit },
                 { ConsoleKey.LeftWindows, this.IgnoreCharacter },
                 { ConsoleKey.RightWindows, this.IgnoreCharacter }
             };
@@ -183,6 +185,23 @@
             {
                 string clipboardText = TextCopy.Clipboard.GetText();
                 this.InsertStringAtCursor(clipboardText);
+            }
+            else
+            {
+                this.HandleCharacter(c);
+            }
+        }
+
+        private void HandleExit(ConsoleKeyInfo c)
+        {
+            if ((c.Modifiers & ConsoleModifiers.Control) != 0)
+            {
+                if (this.buffer.Length == 0)
+                {
+                    BuiltInCommand exit = new Exit();
+                    Console.WriteLine();
+                    exit.Execute(Enumerable.Empty<string>());
+                }
             }
             else
             {
