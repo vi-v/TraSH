@@ -202,6 +202,10 @@
                     Console.WriteLine();
                     exit.Execute(Enumerable.Empty<string>());
                 }
+                else if (this.cursor.RelativePosition < this.buffer.Length)
+                {
+                    this.HandleDelete(c);
+                }
             }
             else
             {
