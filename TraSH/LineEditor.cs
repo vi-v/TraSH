@@ -48,6 +48,15 @@
         public void Start()
         {
             Task.Run(this.historyManager.Start);
+
+            Console.CancelKeyPress += delegate (object sender, ConsoleCancelEventArgs e)
+            {
+                e.Cancel = true;
+                Console.WriteLine();
+                this.buffer.Clear();
+                this.PrintPrompt();
+            };
+
             while (true)
             {
                 ConsoleKeyInfo c = Console.ReadKey(true);
