@@ -76,15 +76,15 @@
             this.autocompleteTrie.Add(escapedLine, this.numCommands);
         }
 
-        public IEnumerable<string> AutoComplete()
-        {
-            return this.GetHistory()
-                .Reverse()
-                .Distinct();
-        }
-
         public IEnumerable<string> AutoComplete(string prefix)
         {
+            if (string.IsNullOrEmpty(prefix))
+            {
+                return this.GetHistory()
+                   .Reverse()
+                   .Distinct();
+            }
+
             return this.autocompleteTrie
                 .Retrieve(prefix)
                 .ToList()

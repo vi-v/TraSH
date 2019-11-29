@@ -177,7 +177,7 @@ namespace TraSHTest
 
             var hm = new HistoryManager(filepath);
             mockHistory.ForEach(hm.Add);
-            IEnumerable<string> actualSuggestions = hm.AutoComplete();
+            IEnumerable<string> actualSuggestions = hm.AutoComplete(string.Empty);
 
             actualSuggestions.Should().BeEquivalentTo(expectedHistory, options => options.WithStrictOrdering());
         }

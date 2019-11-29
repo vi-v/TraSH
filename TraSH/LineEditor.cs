@@ -6,6 +6,7 @@
     using System.Linq;
     using System.Text;
     using System.Threading;
+    using System.Threading.Tasks;
 
     public class LineEditor
     {
@@ -16,7 +17,9 @@
         private readonly IReadOnlyDictionary<ConsoleKey, Action<ConsoleKeyInfo>> consoleKeyMap;
         private readonly Cursor cursor;
         private IEnumerator<string> suggestionCache;
+
         private bool useSuggestionCache;
+        private string bufferCache;
 
         public LineEditor()
         {
@@ -44,6 +47,7 @@
 
         public void Start()
         {
+            Task.Run(this.historyManager.Start);
             while (true)
             {
                 ConsoleKeyInfo c = Console.ReadKey(true);
@@ -127,29 +131,26 @@
 
         private void HandleUpArrow(ConsoleKeyInfo c)
         {
-            string currentBuffer = this.buffer.ToString();
             if (!this.useSuggestionCache)
             {
-                if (string.IsNullOrEmpty(currentBuffer))
-                {
-                    this.suggestionCache = this.historyManager.AutoComplete().GetEnumerator();
-                }
-                else
-                {
-                    this.suggestionCache = this.historyManager.AutoComplete(currentBuffer).GetEnumerator();
-                }
-
+                this.bufferCache = this.buffer.ToString();
+                this.suggestionCache = this.historyManager.AutoComplete(this.bufferCache).GetEnumerator();
                 this.useSuggestionCache = true;
             }
 
+            if (!this.suggestionCache.MoveNext())
+            {
+                this.suggestionCache = this.historyManager.AutoComplete(this.bufferCache).GetEnumerator();
+            }
             string suggestion = this.suggestionCache.Current;
-            this.suggestionCache.MoveNext();
+            if (!string.IsNullOrEmpty(suggestion))
+            {
+                suggestion = suggestion.Substring(this.bufferCache.Length, suggestion.Length - this.bufferCache.Length);
+            }
 
-            int oldCursorPosition = this.cursor.RelativePosition;
-            this.cursor.MoveFront();
-            this.buffer.Remove(oldCursorPosition, this.buffer.Length - oldCursorPosition);
+            this.ClearBuffer();
+            this.InsertStringAtCursor(this.bufferCache);
             this.InsertStringAtCursor(suggestion);
-            this.cursor.MoveRight(oldCursorPosition);
         }
 
         private void HandleDownArrow(ConsoleKeyInfo c)
@@ -159,12 +160,12 @@
 
         private void HandleHome(ConsoleKeyInfo c)
         {
-            this.cursor.MoveFront();
+            this.cursor.MoveHome();
         }
 
         private void HandleEnd(ConsoleKeyInfo c)
         {
-            this.cursor.MoveLast();
+            this.cursor.MoveEnd();
         }
 
         private void HandlePaste(ConsoleKeyInfo c)
@@ -199,6 +200,17 @@
             Console.ResetColor();
 
             this.cursor.MoveLeft(remainingBufText.Length);
+        }
+
+        private void ClearBuffer()
+        {
+            this.cursor.MoveHome();
+            for (int i = 0; i < this.buffer.Length; i++)
+            {
+                Console.Write(" ");
+            }
+            this.buffer.Clear();
+            this.cursor.MoveHome();
         }
 
         private string GetPrompt()
@@ -247,12 +259,12 @@
                 }
             }
 
-            public void MoveFront()
+            public void MoveHome()
             {
                 Console.SetCursorPosition(this.PromptLength, Console.CursorTop);
             }
 
-            public void MoveLast()
+            public void MoveEnd()
             {
                 Console.SetCursorPosition(this.PromptLength + this.buffer.Length, Console.CursorTop);
             }
