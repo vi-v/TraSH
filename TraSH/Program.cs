@@ -6,7 +6,6 @@ using System.Linq;
 using System.Text;
 using Medallion.Shell;
 using TraSH.builtins;
-using static Medallion.Shell.Shell;
 
 namespace TraSH
 {

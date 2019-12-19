@@ -17,6 +17,7 @@
         private readonly StringBuilder buffer;
         private readonly IReadOnlyDictionary<ConsoleKey, Action<ConsoleKeyInfo>> consoleKeyMap;
         private readonly Cursor cursor;
+        private readonly ConsoleBuffer consoleBuffer;
         private IEnumerator<string> suggestionCache;
 
         private bool useSuggestionCache;
@@ -43,6 +44,7 @@
                 { ConsoleKey.RightWindows, this.IgnoreCharacter }
             };
 
+            this.consoleBuffer = new ConsoleBuffer(this.GetPrompt);
             this.cursor = new Cursor(this.buffer, this.GetPrompt);
             this.useSuggestionCache = false;
         }
@@ -75,9 +77,9 @@
 
         public void PrintPrompt()
         {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write(this.GetPrompt());
-            Console.ResetColor();
+            //Console.ForegroundColor = ConsoleColor.Green;
+            //Console.Write(this.GetPrompt());
+            //Console.ResetColor();
         }
 
         private void HandleEnter(ConsoleKeyInfo c)
@@ -216,7 +218,8 @@
         private void HandleCharacter(ConsoleKeyInfo c)
         {
             this.useSuggestionCache = false;
-            this.InsertStringAtCursor(c.KeyChar.ToString());
+            this.consoleBuffer.PutChar(c.KeyChar);
+            //this.InsertStringAtCursor(c.KeyChar.ToString());
         }
 
         private void IgnoreCharacter(ConsoleKeyInfo c) { }
