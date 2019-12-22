@@ -85,17 +85,20 @@
         private void HandleEnter(ConsoleKeyInfo c)
         {
             Console.WriteLine();
-            if (this.buffer.Length > 0)
+            if (!this.consoleBuffer.IsEmpty)
             {
-                string newline = this.buffer.ToString();
+                //string newline = this.buffer.ToString();
+                string newline = this.consoleBuffer.ToString();
                 this.historyManager.Add(newline);
                 this.LineReceived?.Invoke(this, newline);
-                this.buffer.Clear();
+                //this.buffer.Clear();
             }
-            else
-            {
-                this.PrintPrompt();
-            }
+            //else
+            //{
+            //    this.PrintPrompt();
+            //}
+            this.consoleBuffer.Reset();
+
         }
 
         private void HandleBackspace(ConsoleKeyInfo c)
@@ -253,7 +256,7 @@
 
         private string GetPrompt()
         {
-            return $"{Environment.MachineName}:{new DirectoryInfo(Environment.CurrentDirectory).Name} > ";
+            return $"{Environment.MachineName}:{new DirectoryInfo(Environment.CurrentDirectory).Name} {Console.WindowTop} {Console.CursorTop}> ";
         }
 
         private class Cursor
