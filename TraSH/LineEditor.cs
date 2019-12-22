@@ -134,7 +134,8 @@
 
         private void HandleLeftArrow(ConsoleKeyInfo c)
         {
-            this.cursor.MoveLeft();
+            //this.cursor.MoveLeft();
+            this.consoleBuffer.MoveCursorLeft();
         }
 
         private void HandleRightArrow(ConsoleKeyInfo c)
@@ -173,7 +174,8 @@
 
         private void HandleHome(ConsoleKeyInfo c)
         {
-            this.cursor.MoveHome();
+            //this.cursor.MoveHome();
+            this.consoleBuffer.MoveCursorLeft(int.MaxValue);
         }
 
         private void HandleEnd(ConsoleKeyInfo c)

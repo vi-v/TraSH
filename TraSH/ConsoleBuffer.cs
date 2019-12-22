@@ -10,6 +10,7 @@
         private readonly Func<string> getRightPrompt;
         private readonly List<StringBuilder> buffer;
         private int oldBufferWidth;
+        private int relativeTop;
 
         public ConsoleBuffer(Func<string> getLeftPrompt) : this(getLeftPrompt, () => string.Empty)
         {
@@ -21,7 +22,9 @@
             this.getRightPrompt = getRightPrompt;
             this.buffer = new List<StringBuilder> { new StringBuilder() };
             this.oldBufferWidth = Console.BufferWidth;
+            this.relativeTop = 0;
 
+            Console.WriteLine($"{Console.CursorLeft} {Console.CursorTop}");
             foreach (char c in this.getLeftPrompt())
             {
                 this.PutChar(c);
@@ -38,9 +41,34 @@
 
         public void PutChar(char c)
         {
-            this.CheckDimensionsAndUpdateBuffer();
-            this.buffer[Console.CursorTop].Append(c);
+            //this.CheckDimensionsAndUpdateBuffer();
+            this.buffer[this.relativeTop].Append(c);
             Console.Write(c);
+        }
+
+        public void MoveCursorLeft(int count = 1)
+        {
+            this.CheckDimensionsAndUpdateBuffer();
+            int promptLength = this.getLeftPrompt().Length;
+            int promptHeight = promptLength / Console.BufferWidth;
+            int promptWidth = promptLength % Console.BufferWidth;
+
+            int cursorTop = Console.CursorTop;
+            int targetPosition = -1 * count - (this.buffer[cursorTop].Length - Console.CursorLeft);
+            int targetLine = this.buffer.Count - 1;
+            for (int i = cursorTop; targetPosition < 0 && i >= 0; i--)
+            {
+                targetLine = i;
+                targetPosition += this.buffer[i].Length;
+            }
+
+            if (targetLine <= promptHeight)
+            {
+                targetLine = promptHeight;
+                targetPosition = Math.Max(targetPosition, promptWidth);
+            }
+
+            Console.SetCursorPosition(targetPosition, targetLine);
         }
 
         private void CheckDimensionsAndUpdateBuffer()
@@ -51,7 +79,7 @@
                 StringBuilder tempBuffer = new StringBuilder();
                 this.buffer.ForEach(b => tempBuffer.Append(b));
                 this.buffer.Clear();
-                this.ClearConsoleLine();
+                this.ClearExternalBuffer();
 
 
                 for (int i = 0; i < tempBuffer.Length; i++)
@@ -74,7 +102,7 @@
             }
         }
 
-        private void ClearConsoleLine()
+        private void ClearExternalBuffer()
         {
             for (int i = 0; i < Console.BufferHeight; i++)
             {
