@@ -186,7 +186,8 @@
             if ((c.Modifiers & ConsoleModifiers.Control) != 0)
             {
                 string clipboardText = TextCopy.Clipboard.GetText();
-                this.InsertStringAtCursor(clipboardText);
+                //this.InsertStringAtCursor(clipboardText);
+                this.consoleBuffer.Write(clipboardText);
             }
             else
             {

@@ -28,6 +28,14 @@
             }
         }
 
+        public void Write(IEnumerable<char> s)
+        {
+            foreach (char c in s)
+            {
+                this.PutChar(c);
+            }
+        }
+
         public void PutChar(char c)
         {
             this.CheckDimensionsAndUpdateBuffer();
