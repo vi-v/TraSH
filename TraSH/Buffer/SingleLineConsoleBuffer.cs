@@ -9,11 +9,13 @@
         private readonly Func<string> getLeftPrompt;
         private readonly StringBuilder buffer;
         private int relativeCursorTop;
+        private int cursorPos;
 
         public SingleLineConsoleBuffer(Func<string> getLeftPrompt)
         {
             this.getLeftPrompt = getLeftPrompt;
             this.relativeCursorTop = 0;
+            this.cursorPos = 0;
             this.buffer = new StringBuilder();
 
             foreach (char c in this.getLeftPrompt())
@@ -36,29 +38,27 @@
 
         public void MoveCursorLeft(int count)
         {
-            return;
+            for (int i = 0; i < count; i++)
+            {
+                this.MoveCursorLeft();
+            }
         }
 
         public void MoveCursorRight(int count)
         {
-            return;
+            for (int i = 0; i < count; i++)
+            {
+                this.MoveCursorRight();
+            }
         }
 
         public void PutChar(char c)
         {
-            Console.Write(c);
-
-            int cursorPos = Console.CursorLeft - 1;
-
-            //if (Console.CursorLeft == Console.BufferWidth - 1)
-            //{
-            //    this.relativeCursorTop++;
-            //}
-
-            int insertIndex = this.relativeCursorTop * (Console.BufferWidth - 1) + cursorPos;
-            this.buffer.Insert(insertIndex, c);
-
+            this.buffer.Insert(this.cursorPos, c);
+            this.cursorPos++;
             this.IsEmpty = false;
+
+            Console.Write(c);
         }
 
         public void Write(IEnumerable<char> s)
@@ -67,6 +67,31 @@
             {
                 this.PutChar(c);
             }
+        }
+
+        private void MoveCursorLeft()
+        {
+            int promptLength = this.getLeftPrompt().Length;
+
+            int cursorLine = this.buffer.Length / Console.BufferWidth;
+            if (this.cursorPos > promptLength)
+            {
+                if (Console.CursorLeft == 0 && cursorLine > 0)
+                {
+                    Console.SetCursorPosition(Console.BufferWidth - 1, Console.CursorTop - 1);
+                    this.cursorPos--;
+                }
+                else
+                {
+                    Console.CursorLeft -= 1;
+                    this.cursorPos--;
+                }
+            }
+        }
+
+        private void MoveCursorRight()
+        {
+            int cursorLine = this.buffer.Length / Console.BufferWidth;
         }
     }
 }

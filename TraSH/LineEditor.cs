@@ -89,7 +89,7 @@
             if (!this.consoleBuffer.IsEmpty)
             {
                 //string newline = this.buffer.ToString();
-                string newline = this.consoleBuffer.ToString();
+                string newline = this.consoleBuffer.GetContent();
                 this.historyManager.Add(newline);
                 this.LineReceived?.Invoke(this, newline);
                 //this.buffer.Clear();
