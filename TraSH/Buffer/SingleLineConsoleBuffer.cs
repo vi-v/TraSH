@@ -73,11 +73,9 @@
 
         public void PutChar(char c)
         {
-            this.buffer.Insert(this.cursorPos, c);
+            this.InsertStringAtCursor(c.ToString());
             this.cursorPos++;
             this.IsEmpty = false;
-
-            Console.Write(c);
         }
 
         public void Write(IEnumerable<char> s)
@@ -113,7 +111,7 @@
             int cursorLine = this.cursorPos / Console.BufferWidth;
             int bufferHeight = this.buffer.Length / Console.BufferWidth + 1;
 
-            if (this.cursorPos < this.buffer.Length - 1)
+            if (this.cursorPos < this.buffer.Length)
             {
                 if (Console.CursorLeft == Console.BufferWidth - 1 && cursorLine < bufferHeight - 1)
                 {
@@ -125,6 +123,18 @@
                 }
                 this.cursorPos++;
             }
+        }
+
+        private void InsertStringAtCursor(string s)
+        {
+            string remainingBuffer = this.buffer.ToString(this.cursorPos, this.buffer.Length - this.cursorPos);
+            this.buffer.Insert(this.cursorPos, s);
+
+            Console.Write(s);
+            Console.Write(remainingBuffer);
+
+            this.cursorPos += remainingBuffer.Length;
+            this.MoveCursorLeft(remainingBuffer.Length);
         }
     }
 }
