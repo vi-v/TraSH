@@ -15,6 +15,10 @@
 
         void MoveCursorRight(int count);
 
+        void MoveCursorHome();
+
+        void MoveCursorEnd();
+
         string GetContent();
     }
 }

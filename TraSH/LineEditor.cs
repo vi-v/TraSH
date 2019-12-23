@@ -179,12 +179,13 @@
         private void HandleHome(ConsoleKeyInfo c)
         {
             //this.cursor.MoveHome();
-            this.consoleBuffer.MoveCursorLeft(int.MaxValue);
+            this.consoleBuffer.MoveCursorHome();
         }
 
         private void HandleEnd(ConsoleKeyInfo c)
         {
-            this.cursor.MoveEnd();
+            //this.cursor.MoveEnd();
+            this.consoleBuffer.MoveCursorEnd();
         }
 
         private void HandlePaste(ConsoleKeyInfo c)

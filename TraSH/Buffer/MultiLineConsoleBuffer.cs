@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Text;
 
-    public class MultiLineConsoleBuffer : IConsoleBuffer
+    public class MultiLineConsoleBuffer
     {
         private readonly Func<string> getLeftPrompt;
         private readonly Func<string> getRightPrompt;
