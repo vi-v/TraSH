@@ -7,7 +7,8 @@
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-    using TraSH.builtins;
+    using TraSH.Builtins;
+    using TraSH.Buffer;
 
     public class LineEditor
     {
@@ -17,7 +18,7 @@
         private readonly StringBuilder buffer;
         private readonly IReadOnlyDictionary<ConsoleKey, Action<ConsoleKeyInfo>> consoleKeyMap;
         private readonly Cursor cursor;
-        private readonly ConsoleBuffer consoleBuffer;
+        private IConsoleBuffer consoleBuffer;
         private IEnumerator<string> suggestionCache;
 
         private bool useSuggestionCache;
@@ -44,7 +45,7 @@
                 { ConsoleKey.RightWindows, this.IgnoreCharacter }
             };
 
-            this.consoleBuffer = new ConsoleBuffer(this.GetPrompt);
+            this.consoleBuffer = new SingleLineConsoleBuffer(this.GetPrompt);
             this.cursor = new Cursor(this.buffer, this.GetPrompt);
             this.useSuggestionCache = false;
         }
@@ -97,8 +98,7 @@
             //{
             //    this.PrintPrompt();
             //}
-            this.consoleBuffer.Reset();
-
+            this.consoleBuffer = new SingleLineConsoleBuffer(this.GetPrompt);
         }
 
         private void HandleBackspace(ConsoleKeyInfo c)
@@ -138,12 +138,13 @@
         private void HandleLeftArrow(ConsoleKeyInfo c)
         {
             //this.cursor.MoveLeft();
-            this.consoleBuffer.MoveCursorLeft();
+            this.consoleBuffer.MoveCursorLeft(1);
         }
 
         private void HandleRightArrow(ConsoleKeyInfo c)
         {
-            this.cursor.MoveRight();
+            //this.cursor.MoveRight();
+            this.consoleBuffer.MoveCursorRight(1);
         }
 
         private void HandleUpArrow(ConsoleKeyInfo c)

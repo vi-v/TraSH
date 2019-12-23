@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using TraSH.builtins;
+using TraSH.Builtins;
 
 namespace TraSH
 {

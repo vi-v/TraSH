@@ -1,4 +1,4 @@
-﻿namespace TraSH.builtins
+﻿namespace TraSH.Builtins
 {
     using System;
     using System.Collections.Generic;

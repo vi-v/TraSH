@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace TraSH.builtins
+namespace TraSH.Builtins
 {
     public interface BuiltInCommand
     {
