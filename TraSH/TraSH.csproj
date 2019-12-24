@@ -11,8 +11,4 @@
     <PackageReference Include="VDS.Common" Version="1.10.0" />
     <PackageReference Include="TrieNet" Version="1.0.3.26316" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Buffer\" />
-  </ItemGroup>
 </Project>

@@ -58,8 +58,7 @@
             {
                 e.Cancel = true;
                 Console.WriteLine();
-                this.buffer.Clear();
-                this.PrintPrompt();
+                this.consoleBuffer = new SingleLineConsoleBuffer(this.GetPrompt);
             };
 
             while (true)
@@ -103,25 +102,29 @@
 
         private void HandleBackspace(ConsoleKeyInfo c)
         {
-            if (this.buffer.Length > 0 && this.cursor.RelativePosition > 0)
-            {
-                int delPosition = this.cursor.RelativePosition - 1;
-                int delCount = this.buffer.Length - this.cursor.RelativePosition;
-                this.buffer.Remove(delPosition, 1);
-                this.cursor.MoveLeft();
-                this.ReplaceBufferAndMoveCursor(delCount + 1);
-            }
+            //if (this.buffer.Length > 0 && this.cursor.RelativePosition > 0)
+            //{
+            //    int delPosition = this.cursor.RelativePosition - 1;
+            //    int delCount = this.buffer.Length - this.cursor.RelativePosition;
+            //    this.buffer.Remove(delPosition, 1);
+            //    this.cursor.MoveLeft();
+            //    this.ReplaceBufferAndMoveCursor(delCount + 1);
+            //}
+
+            this.consoleBuffer.Backspace(1);
         }
 
         private void HandleDelete(ConsoleKeyInfo c)
         {
-            if (this.buffer.Length > 0 && this.cursor.RelativePosition < this.buffer.Length)
-            {
-                int delPosition = this.cursor.RelativePosition;
-                int delCount = this.buffer.Length - this.cursor.RelativePosition;
-                this.buffer.Remove(delPosition, 1);
-                this.ReplaceBufferAndMoveCursor(delCount);
-            }
+            //if (this.buffer.Length > 0 && this.cursor.RelativePosition < this.buffer.Length)
+            //{
+            //    int delPosition = this.cursor.RelativePosition;
+            //    int delCount = this.buffer.Length - this.cursor.RelativePosition;
+            //    this.buffer.Remove(delPosition, 1);
+            //    this.ReplaceBufferAndMoveCursor(delCount);
+            //}
+
+            this.consoleBuffer.Delete(1);
         }
 
         private void ReplaceBufferAndMoveCursor(int delCount)

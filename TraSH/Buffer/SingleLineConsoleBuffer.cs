@@ -8,13 +8,11 @@
     {
         private readonly Func<string> getLeftPrompt;
         private readonly StringBuilder buffer;
-        private int relativeCursorTop;
         private int cursorPos;
 
         public SingleLineConsoleBuffer(Func<string> getLeftPrompt)
         {
             this.getLeftPrompt = getLeftPrompt;
-            this.relativeCursorTop = 0;
             this.cursorPos = 0;
             this.buffer = new StringBuilder();
 
@@ -93,6 +91,14 @@
             }
         }
 
+        public void Backspace(int count)
+        {
+            int promptLength = this.getLeftPrompt().Length;
+            int boundedCount = Math.Min(count, this.cursorPos - promptLength);
+            this.MoveCursorLeft(boundedCount);
+            this.Delete(boundedCount);
+        }
+
         private void MoveCursorLeft()
         {
             int promptLength = this.getLeftPrompt().Length;
@@ -149,7 +155,20 @@
 
         private void DeleteCharacter()
         {
+            if (this.cursorPos < this.buffer.Length)
+            {
+                string emptySpace = "  ";
+                string replacementBuffer = this.buffer.ToString(this.cursorPos + 1, this.buffer.Length - this.cursorPos - 1) + emptySpace;
 
+                this.buffer.Remove(this.cursorPos, 1);
+                this.buffer.Append(emptySpace);
+
+                Console.Write(replacementBuffer);
+                this.cursorPos += replacementBuffer.Length;
+
+                this.MoveCursorLeft(replacementBuffer.Length);
+                this.buffer.Remove(this.buffer.Length - emptySpace.Length, emptySpace.Length);
+            }
         }
     }
 }

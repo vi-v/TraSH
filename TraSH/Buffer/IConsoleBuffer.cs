@@ -13,6 +13,8 @@
 
         void Delete(int count);
 
+        void Backspace(int count);
+
         void MoveCursorLeft(int count);
 
         void MoveCursorRight(int count);
