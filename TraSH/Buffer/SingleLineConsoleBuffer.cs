@@ -37,19 +37,23 @@
         public void MoveCursorEnd()
         {
             int bufferEnd = this.buffer.Length % Console.BufferWidth;
-            int cursorLine = this.cursorPos / Console.BufferWidth;
             int bufferHeight = this.buffer.Length / Console.BufferWidth + 1;
 
-            Console.SetCursorPosition(bufferEnd, Console.CursorTop + bufferHeight - cursorLine - 1);
+            Console.SetCursorPosition(bufferEnd, Console.CursorTop + bufferHeight - this.CursorLine - 1);
             this.cursorPos = this.buffer.Length;
         }
 
         public void MoveCursorHome()
         {
-            int cursorLine = this.cursorPos / Console.BufferWidth;
             int promptLength = this.getLeftPrompt().Length;
 
-            Console.SetCursorPosition(promptLength, Console.CursorTop - cursorLine);
+            int adjustedCursorLine = this.CursorLine;
+            if (Console.CursorLeft == Console.BufferWidth - 1 && this.cursorPos % Console.BufferWidth == 0)
+            {
+                adjustedCursorLine--;
+            }
+
+            Console.SetCursorPosition(promptLength, Console.CursorTop - adjustedCursorLine);
             this.cursorPos = promptLength;
         }
 
@@ -99,14 +103,15 @@
             this.Delete(boundedCount);
         }
 
+        private int CursorLine { get => this.cursorPos / Console.BufferWidth; }
+
         private void MoveCursorLeft()
         {
             int promptLength = this.getLeftPrompt().Length;
-            int cursorLine = this.cursorPos / Console.BufferWidth;
 
             if (this.cursorPos > promptLength)
             {
-                if (Console.CursorLeft == 0 && cursorLine > 0)
+                if (Console.CursorLeft == 0 && this.CursorLine > 0)
                 {
                     Console.SetCursorPosition(Console.BufferWidth - 1, Console.CursorTop - 1);
                 }
@@ -121,12 +126,11 @@
 
         private void MoveCursorRight()
         {
-            int cursorLine = this.cursorPos / Console.BufferWidth;
             int bufferHeight = this.buffer.Length / Console.BufferWidth + 1;
 
             if (this.cursorPos < this.buffer.Length)
             {
-                if (Console.CursorLeft == Console.BufferWidth - 1 && cursorLine < bufferHeight - 1)
+                if (Console.CursorLeft == Console.BufferWidth - 1 && this.CursorLine < bufferHeight - 1)
                 {
                     Console.SetCursorPosition(0, Console.CursorTop + 1);
                 }
@@ -140,7 +144,7 @@
 
         private void InsertStringAtCursor(string s)
         {
-            string remainingBuffer = this.buffer.ToString(this.cursorPos, this.buffer.Length - this.cursorPos);
+            string remainingBuffer = this.buffer.RemainingSubstring(this.cursorPos);
             
             this.buffer.Insert(this.cursorPos, s);
 
@@ -150,7 +154,7 @@
             Console.Write(remainingBuffer);
             this.cursorPos += remainingBuffer.Length;
 
-            this.MoveCursorLeft(remainingBuffer.Length);
+            //this.MoveCursorLeft(remainingBuffer.Length);
         }
 
         private void DeleteCharacter()
@@ -158,7 +162,7 @@
             if (this.cursorPos < this.buffer.Length)
             {
                 string emptySpace = "  ";
-                string replacementBuffer = this.buffer.ToString(this.cursorPos + 1, this.buffer.Length - this.cursorPos - 1) + emptySpace;
+                string replacementBuffer = this.buffer.RemainingSubstring(this.cursorPos + 1) + emptySpace;
 
                 this.buffer.Remove(this.cursorPos, 1);
                 this.buffer.Append(emptySpace);
