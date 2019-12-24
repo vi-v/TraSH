@@ -85,6 +85,14 @@
             }
         }
 
+        public void Delete(int count)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                this.DeleteCharacter();
+            }
+        }
+
         private void MoveCursorLeft()
         {
             int promptLength = this.getLeftPrompt().Length;
@@ -137,6 +145,11 @@
             this.cursorPos += remainingBuffer.Length;
 
             this.MoveCursorLeft(remainingBuffer.Length);
+        }
+
+        private void DeleteCharacter()
+        {
+
         }
     }
 }
