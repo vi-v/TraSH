@@ -77,10 +77,10 @@ namespace TraSH
             Process proc = new Process();
             ProcessStartInfo psi = new ProcessStartInfo();
             psi.WorkingDirectory = Environment.CurrentDirectory;
-            psi.FileName = commandName;
-            arguments.ForEach(a => psi.ArgumentList.Add(a));
-            //psi.FileName = "cmd.exe";
-            //psi.Arguments = "/c " + cmd;
+            //psi.FileName = commandName;
+            //arguments.ForEach(a => psi.ArgumentList.Add(a));
+            psi.FileName = "cmd.exe";
+            psi.Arguments = "/c " + commandName + " " + string.Join(" ", arguments);
             //psi.WindowStyle = ProcessWindowStyle.Hidden;
             psi.RedirectStandardOutput = true;
 

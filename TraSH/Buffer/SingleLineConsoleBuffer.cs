@@ -74,7 +74,6 @@
         public void PutChar(char c)
         {
             this.InsertStringAtCursor(c.ToString());
-            this.cursorPos++;
             this.IsEmpty = false;
         }
 
@@ -128,12 +127,15 @@
         private void InsertStringAtCursor(string s)
         {
             string remainingBuffer = this.buffer.ToString(this.cursorPos, this.buffer.Length - this.cursorPos);
+            
             this.buffer.Insert(this.cursorPos, s);
 
             Console.Write(s);
-            Console.Write(remainingBuffer);
+            this.cursorPos += s.Length;
 
+            Console.Write(remainingBuffer);
             this.cursorPos += remainingBuffer.Length;
+
             this.MoveCursorLeft(remainingBuffer.Length);
         }
     }
