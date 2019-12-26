@@ -2,24 +2,23 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Text;
 
     public class SingleLineConsoleBuffer : IConsoleBuffer
     {
-        private readonly Func<string> getLeftPrompt;
         private readonly StringBuilder buffer;
+        private readonly string prompt;
         private int cursorPos;
 
-        public SingleLineConsoleBuffer(Func<string> getLeftPrompt)
+        public SingleLineConsoleBuffer(string prompt)
         {
-            this.getLeftPrompt = getLeftPrompt;
+            this.prompt = prompt;
             this.cursorPos = 0;
             this.buffer = new StringBuilder();
 
-            foreach (char c in this.getLeftPrompt())
-            {
-                this.PutChar(c);
-            }
+            Console.WriteLine();
+            this.Write(this.prompt);
 
             this.IsEmpty = true;
         }
@@ -29,7 +28,7 @@
         public string GetContent()
         {
             StringBuilder tempBuffer = new StringBuilder(this.buffer.ToString());
-            tempBuffer.Remove(0, this.getLeftPrompt().Length);
+            tempBuffer.Remove(0, this.prompt.Length);
 
             return tempBuffer.ToString();
         }
@@ -45,7 +44,7 @@
 
         public void MoveCursorHome()
         {
-            int promptLength = this.getLeftPrompt().Length;
+            int promptLength = this.prompt.Length;
 
             int adjustedCursorLine = this.CursorLine;
             if (Console.CursorLeft == Console.BufferWidth - 1 && this.cursorPos % Console.BufferWidth == 0)
@@ -81,10 +80,8 @@
 
         public void Write(IEnumerable<char> s)
         {
-            foreach (char c in s)
-            {
-                this.PutChar(c);
-            }
+            this.InsertStringAtCursor(string.Join("", s.ToList()));
+            this.IsEmpty = false;
         }
 
         public void Delete(int count)
@@ -97,7 +94,7 @@
 
         public void Backspace(int count)
         {
-            int promptLength = this.getLeftPrompt().Length;
+            int promptLength = this.prompt.Length;
             int boundedCount = Math.Min(count, this.cursorPos - promptLength);
             this.MoveCursorLeft(boundedCount);
             this.Delete(boundedCount);
@@ -107,7 +104,7 @@
 
         private void MoveCursorLeft()
         {
-            int promptLength = this.getLeftPrompt().Length;
+            int promptLength = this.prompt.Length;
 
             if (this.cursorPos > promptLength)
             {
@@ -122,6 +119,8 @@
 
                 this.cursorPos--;
             }
+
+            System.Diagnostics.Debug.WriteLine($"{DateTime.Now.ToString("hh:mm:ss fffffff")} <- {this.cursorPos}");
         }
 
         private void MoveCursorRight()
@@ -140,21 +139,35 @@
                 }
                 this.cursorPos++;
             }
+
+            System.Diagnostics.Debug.WriteLine($"{DateTime.Now.ToString("hh:mm:ss fffffff")} -> {this.cursorPos}");
         }
 
         private void InsertStringAtCursor(string s)
         {
+            if (string.IsNullOrEmpty(s))
+            {
+                return;
+            }
+
             string remainingBuffer = this.buffer.RemainingSubstring(this.cursorPos);
-            
+            bool shouldAdvanceCursor = Console.CursorLeft == Console.BufferWidth - 1 && s.Length <= 1;
+
             this.buffer.Insert(this.cursorPos, s);
 
             Console.Write(s);
             this.cursorPos += s.Length;
 
-            Console.Write(remainingBuffer);
-            this.cursorPos += remainingBuffer.Length;
+            if (shouldAdvanceCursor)
+            {
+                Console.CursorLeft = 0;
+                Console.CursorTop += 1;
+            }
 
-            //this.MoveCursorLeft(remainingBuffer.Length);
+            int oldCursorLeft = Console.CursorLeft;
+            Console.Write(remainingBuffer);
+            Console.CursorTop -= (remainingBuffer.Length + oldCursorLeft - 1) / Console.BufferWidth;
+            Console.CursorLeft = oldCursorLeft;
         }
 
         private void DeleteCharacter()

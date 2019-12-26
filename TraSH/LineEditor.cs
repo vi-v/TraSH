@@ -45,7 +45,7 @@
                 { ConsoleKey.RightWindows, this.IgnoreCharacter }
             };
 
-            this.consoleBuffer = new SingleLineConsoleBuffer(this.GetPrompt);
+            this.consoleBuffer = this.NewConsoleBuffer();
             this.cursor = new Cursor(this.buffer, this.GetPrompt);
             this.useSuggestionCache = false;
         }
@@ -58,7 +58,7 @@
             {
                 e.Cancel = true;
                 Console.WriteLine();
-                this.consoleBuffer = new SingleLineConsoleBuffer(this.GetPrompt);
+                this.consoleBuffer = this.NewConsoleBuffer();
             };
 
             while (true)
@@ -84,7 +84,9 @@
 
         private void HandleEnter(ConsoleKeyInfo c)
         {
+            this.consoleBuffer.MoveCursorEnd();
             Console.WriteLine();
+
             if (!this.consoleBuffer.IsEmpty)
             {
                 //string newline = this.buffer.ToString();
@@ -97,7 +99,7 @@
             //{
             //    this.PrintPrompt();
             //}
-            this.consoleBuffer = new SingleLineConsoleBuffer(this.GetPrompt);
+            this.consoleBuffer = this.NewConsoleBuffer();
         }
 
         private void HandleBackspace(ConsoleKeyInfo c)
@@ -234,6 +236,11 @@
         }
 
         private void IgnoreCharacter(ConsoleKeyInfo c) { }
+
+        private IConsoleBuffer NewConsoleBuffer()
+        {
+            return new SingleLineConsoleBuffer(this.GetPrompt());
+        }
 
         private void InsertStringAtCursor(string text)
         {
