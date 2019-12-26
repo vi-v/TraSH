@@ -25,12 +25,22 @@
 
         public bool IsEmpty { get; private set; }
 
+        public Coordinate2 Size { get => new Coordinate2(this.buffer.Length, 0); }
+
+        public Coordinate2 CursorPosition { get => new Coordinate2(this.cursorPos, 0); }
+
         public string GetContent()
         {
             StringBuilder tempBuffer = new StringBuilder(this.buffer.ToString());
             tempBuffer.Remove(0, this.prompt.Length);
 
             return tempBuffer.ToString();
+        }
+
+        public void Clear()
+        {
+            this.MoveCursorHome();
+            this.Delete(this.buffer.Length - this.prompt.Length);
         }
 
         public void MoveCursorEnd()

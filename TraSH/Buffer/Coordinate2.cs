@@ -4,9 +4,9 @@
     using System.Collections.Generic;
     using System.Text;
 
-    public sealed class Coordinate2D
+    public sealed class Coordinate2
     {
-        public Coordinate2D(int x, int y)
+        public Coordinate2(int x, int y)
         {
             this.X = x;
             this.Y = y;

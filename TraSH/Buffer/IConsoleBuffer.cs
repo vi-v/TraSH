@@ -7,6 +7,10 @@
     {
         bool IsEmpty { get; }
 
+        Coordinate2 Size { get; }
+
+        Coordinate2 CursorPosition { get; }
+
         void Write(IEnumerable<char> s);
 
         void PutChar(char c);
@@ -24,5 +28,7 @@
         void MoveCursorEnd();
 
         string GetContent();
+
+        void Clear();
     }
 }

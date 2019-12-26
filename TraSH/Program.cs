@@ -23,7 +23,6 @@ namespace TraSH
             Console.CancelKeyPress += delegate (object sender, ConsoleCancelEventArgs e)
             {
                 e.Cancel = true;
-                //Exit(Enumerable.Empty<string>());
             };
 
             LineEditor lineEditor = new LineEditor();
@@ -33,7 +32,6 @@ namespace TraSH
                 if (string.IsNullOrEmpty(e))
                 {
                     Console.WriteLine();
-                    lineEditor.PrintPrompt();
                     return;
                 }
 
@@ -46,10 +44,8 @@ namespace TraSH
                 {
                     ExecuteExternalCommand(cmdArgs);
                 }
-                lineEditor.PrintPrompt();
             };
 
-            lineEditor.PrintPrompt();
             lineEditor.Start();
         }
 
