@@ -38,6 +38,7 @@
                 { ConsoleKey.End,  this.HandleEnd },
                 { ConsoleKey.V, this.HandlePaste },
                 { ConsoleKey.D, this.HandleExit },
+                { ConsoleKey.U, this.HandleClearLine },
                 { ConsoleKey.LeftWindows, this.IgnoreCharacter },
                 { ConsoleKey.RightWindows, this.IgnoreCharacter }
             };
@@ -171,6 +172,18 @@
                 {
                     this.HandleDelete(c);
                 }
+            }
+            else
+            {
+                this.HandleCharacter(c);
+            }
+        }
+
+        private void HandleClearLine(ConsoleKeyInfo c)
+        {
+            if ((c.Modifiers & ConsoleModifiers.Control) != 0)
+            {
+                this.consoleBuffer.Clear();
             }
             else
             {

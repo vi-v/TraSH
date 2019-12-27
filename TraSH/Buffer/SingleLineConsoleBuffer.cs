@@ -39,8 +39,13 @@
 
         public void Clear()
         {
+            int contentLength = this.buffer.Length - this.prompt.Length;
+
             this.MoveCursorHome();
-            this.Delete(this.buffer.Length - this.prompt.Length);
+            this.buffer.Remove(this.cursorPos, this.buffer.Length - this.cursorPos);
+            this.Write(new string(' ', contentLength));
+            this.MoveCursorHome();
+            this.buffer.Remove(this.cursorPos, this.buffer.Length - this.cursorPos);
         }
 
         public void MoveCursorEnd()
