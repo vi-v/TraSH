@@ -11,5 +11,10 @@
         {
             return sb.ToString(index, sb.Length - index);
         }
+
+        public static bool IsControlActive(this ConsoleKeyInfo c)
+        {
+            return (c.Modifiers & ConsoleModifiers.Control) != 0;
+        }
     }
 }

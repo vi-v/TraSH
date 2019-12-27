@@ -17,7 +17,6 @@
             this.cursorPos = 0;
             this.buffer = new StringBuilder();
 
-            Console.WriteLine();
             this.Write(this.prompt);
 
             this.IsEmpty = true;

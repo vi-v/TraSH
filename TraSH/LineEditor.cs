@@ -16,6 +16,7 @@
 
         private readonly HistoryManager historyManager;
         private readonly IReadOnlyDictionary<ConsoleKey, Action<ConsoleKeyInfo>> consoleKeyMap;
+        private readonly IReadOnlyDictionary<ConsoleKey, Action<ConsoleKeyInfo>> consoleKeyCtrlMap;
         private IConsoleBuffer consoleBuffer;
         private IEnumerator<string> suggestionCache;
 
@@ -36,11 +37,17 @@
                 { ConsoleKey.DownArrow, this.HandleDownArrow },
                 { ConsoleKey.Home,  this.HandleHome },
                 { ConsoleKey.End,  this.HandleEnd },
+                { ConsoleKey.LeftWindows, this.IgnoreCharacter },
+                { ConsoleKey.RightWindows, this.IgnoreCharacter }
+            };
+
+            this.consoleKeyCtrlMap = new Dictionary<ConsoleKey, Action<ConsoleKeyInfo>>
+            {
+                { ConsoleKey.E, this.HandleEnd },
                 { ConsoleKey.V, this.HandlePaste },
                 { ConsoleKey.D, this.HandleExit },
                 { ConsoleKey.U, this.HandleClearLine },
-                { ConsoleKey.LeftWindows, this.IgnoreCharacter },
-                { ConsoleKey.RightWindows, this.IgnoreCharacter }
+                { ConsoleKey.K, this.HandleClearAfterCursor }
             };
 
             this.consoleBuffer = this.NewConsoleBuffer();
@@ -147,54 +154,45 @@
 
         private void HandlePaste(ConsoleKeyInfo c)
         {
-            if ((c.Modifiers & ConsoleModifiers.Control) != 0)
-            {
-                string clipboardText = TextCopy.Clipboard.GetText();
-                this.consoleBuffer.Write(clipboardText);
-            }
-            else
-            {
-                this.HandleCharacter(c);
-            }
+            string clipboardText = TextCopy.Clipboard.GetText();
+            this.consoleBuffer.Write(clipboardText);
         }
 
         private void HandleExit(ConsoleKeyInfo c)
         {
-            if ((c.Modifiers & ConsoleModifiers.Control) != 0)
+            if (this.consoleBuffer.IsEmpty)
             {
-                if (this.consoleBuffer.IsEmpty)
-                {
-                    BuiltInCommand exit = new Exit();
-                    Console.WriteLine();
-                    exit.Execute(Enumerable.Empty<string>());
-                }
-                else if (this.consoleBuffer.CursorPosition.X < this.consoleBuffer.Size.X)
-                {
-                    this.HandleDelete(c);
-                }
+                BuiltInCommand exit = new Exit();
+                Console.WriteLine();
+                exit.Execute(Enumerable.Empty<string>());
             }
-            else
+            else if (this.consoleBuffer.CursorPosition.X < this.consoleBuffer.Size.X)
             {
-                this.HandleCharacter(c);
+                this.HandleDelete(c);
             }
         }
 
         private void HandleClearLine(ConsoleKeyInfo c)
         {
-            if ((c.Modifiers & ConsoleModifiers.Control) != 0)
-            {
-                this.consoleBuffer.Clear();
-            }
-            else
-            {
-                this.HandleCharacter(c);
-            }
+            this.consoleBuffer.Clear();
+        }
+
+        private void HandleClearAfterCursor(ConsoleKeyInfo c)
+        {
+            this.consoleBuffer.Delete(this.consoleBuffer.Size.X - this.consoleBuffer.CursorPosition.X);
         }
 
         private void HandleCharacter(ConsoleKeyInfo c)
         {
-            this.useSuggestionCache = false;
-            this.consoleBuffer.PutChar(c.KeyChar);
+            if (c.IsControlActive() && this.consoleKeyCtrlMap.ContainsKey(c.Key))
+            {
+                this.consoleKeyCtrlMap[c.Key](c);
+            }
+            else
+            {
+                this.useSuggestionCache = false;
+                this.consoleBuffer.PutChar(c.KeyChar);
+            }
         }
 
         private void IgnoreCharacter(ConsoleKeyInfo c) { }
@@ -206,7 +204,7 @@
 
         private string GetPrompt()
         {
-            return $"{Environment.MachineName}:{new DirectoryInfo(Environment.CurrentDirectory).Name} {Console.WindowTop} {Console.CursorTop}> ";
+            return $"{Environment.MachineName}:{new DirectoryInfo(Environment.CurrentDirectory).Name}> ";
         }
     }
 }
