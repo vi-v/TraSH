@@ -17,4 +17,8 @@
     <ProjectReference Include="..\TraSH\TraSH.csproj" />
   </ItemGroup>
 
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="java -jar $(ProjectDir)antlr-4.7.2-complete.jar -Dlanguage=CSharp -package TraSH.Gen -o $(ProjectDir)Gen\ -visitor .\Shell.g4" />
+  </Target>
+
 </Project>
