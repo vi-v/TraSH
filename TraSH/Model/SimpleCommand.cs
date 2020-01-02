@@ -1,4 +1,4 @@
-﻿namespace TraSH
+﻿namespace TraSH.Model
 {
     using System;
     using System.Collections.Generic;
