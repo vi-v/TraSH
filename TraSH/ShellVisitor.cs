@@ -6,9 +6,27 @@
     using TraSH.Model;
     using TraSH.Gen;
     using Antlr4.Runtime.Misc;
+    using System.Linq;
 
     public class ShellVisitor : ShellBaseVisitor<ParserResult>
     {
+        public override ParserResult VisitSimpleCommand([NotNull] ShellParser.SimpleCommandContext context)
+        {
+            string command = this.VisitCmd(context.cmd()).CmdValue;
+            IEnumerable<string> arguments = Enumerable.Empty<string>();
+
+            if (context.args() != null)
+            {
+                arguments = this.VisitArgs(context.args()).ArgListValue;
+            }
+
+            SimpleCommand simpleCommand = new SimpleCommand(command, arguments);
+            ParserResult result = new ParserResult(simpleCommand);
+            result.IsSimpleCommand = true;
+
+            return result;
+        }
+
         public override ParserResult VisitArgs([NotNull] ShellParser.ArgsContext context)
         {
             if (context.args() == null)
@@ -49,6 +67,16 @@
 
                 return result;
             }
+        }
+
+        public override ParserResult VisitCmd([NotNull] ShellParser.CmdContext context)
+        {
+            string cmdArg = this.VisitArg(context.arg()).ArgValue;
+
+            ParserResult result = new ParserResult(cmdArg);
+            result.IsCmd = true;
+
+            return result;
         }
     }
 }

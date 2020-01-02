@@ -14,6 +14,36 @@ namespace TraSHTest
     public class ShellVisitorTest
     {
         [TestMethod]
+        public void SimpleCommandWithArgsTest()
+        {
+            ShellParser shellParser = MakeParser("git reset --hard");
+            SimpleCommandContext context = shellParser.simpleCommand();
+            ShellVisitor visitor = new ShellVisitor();
+
+            ParserResult result = visitor.Visit(context);
+            SimpleCommand actualCommand = result.SimpleCommandValue;
+
+            result.IsSimpleCommand.Should().BeTrue();
+            actualCommand.Command.Should().Be("git");
+            actualCommand.Arguments.Should().BeEquivalentTo(new List<string> { "reset", "--hard" }, opt => opt.WithStrictOrdering());
+        }
+
+        [TestMethod]
+        public void SimpleCommandNoArgsTest()
+        {
+            ShellParser shellParser = MakeParser("git");
+            SimpleCommandContext context = shellParser.simpleCommand();
+            ShellVisitor visitor = new ShellVisitor();
+
+            ParserResult result = visitor.Visit(context);
+            SimpleCommand actualCommand = result.SimpleCommandValue;
+
+            result.IsSimpleCommand.Should().BeTrue();
+            actualCommand.Command.Should().Be("git");
+            actualCommand.Arguments.Should().BeEmpty();
+        }
+
+        [TestMethod]
         public void CmdTest()
         {
             ShellParser shellParser = MakeParser("cmdword");
