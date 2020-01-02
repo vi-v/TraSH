@@ -14,6 +14,19 @@ namespace TraSHTest
     public class ShellVisitorTest
     {
         [TestMethod]
+        public void CmdTest()
+        {
+            ShellParser shellParser = MakeParser("cmdword");
+            CmdContext context = shellParser.cmd();
+            ShellVisitor visitor = new ShellVisitor();
+
+            ParserResult result = visitor.Visit(context);
+
+            result.IsCmd.Should().BeTrue();
+            result.CmdValue.Should().Be("cmdword");
+        }
+
+        [TestMethod]
         public void ArgListOneWordTest()
         {
             ShellParser shellParser = MakeParser("wordarg");
