@@ -1,5 +1,6 @@
 obj/
 bin/
-Gen/*
+Gen/
+.antlr/
 *.jar
 .vs/

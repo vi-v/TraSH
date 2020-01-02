@@ -19,7 +19,7 @@ arg
     | STRING
     ;
 
-STRING			: '"' .*? '"' ;
+STRING			: ('"' .*? '"' | '\'' .*? '\'') ;
 WORD            : ID+ ;
 fragment ID     : ~(' '|'\t') ;
 WHITESPACE		: (' '|'\t')+ -> skip ;                                                                        
