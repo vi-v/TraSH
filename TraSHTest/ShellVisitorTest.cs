@@ -14,6 +14,37 @@ namespace TraSHTest
     public class ShellVisitorTest
     {
         [TestMethod]
+        public void PipeListOneCommandTest()
+        {
+            ShellParser shellParser = MakeParser("git reset --hard");
+            PipeListContext context = shellParser.pipeList();
+            ShellVisitor visitor = new ShellVisitor();
+
+            ParserResult result = visitor.Visit(context);
+            List<SimpleCommand> actualPipeList = result.PipeListValue;
+
+            result.IsPipeList.Should().BeTrue();
+            actualPipeList.Should().HaveCount(1);
+            actualPipeList[0].ToString().Should().Be("git reset --hard");
+        }
+
+        [TestMethod]
+        public void PipeListTwoCommandTest()
+        {
+            ShellParser shellParser = MakeParser("git reset --hard | echo");
+            PipeListContext context = shellParser.pipeList();
+            ShellVisitor visitor = new ShellVisitor();
+
+            ParserResult result = visitor.Visit(context);
+            List<SimpleCommand> actualPipeList = result.PipeListValue;
+
+            result.IsPipeList.Should().BeTrue();
+            actualPipeList.Should().HaveCount(2);
+            actualPipeList[0].ToString().Should().Be("git reset --hard");
+            actualPipeList[1].ToString().Should().Be("echo");
+        }
+
+        [TestMethod]
         public void SimpleCommandWithArgsTest()
         {
             ShellParser shellParser = MakeParser("git reset --hard");

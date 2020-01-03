@@ -35,6 +35,8 @@ namespace TraSH
                     return;
                 }
 
+
+
                 IEnumerable<string> cmdArgs = e.Split(' ');
                 if (builtInsMap.ContainsKey(cmdArgs.First()))
                 {

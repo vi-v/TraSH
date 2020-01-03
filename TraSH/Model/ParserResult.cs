@@ -28,5 +28,13 @@
         public bool IsSimpleCommand { get; set; }
 
         public SimpleCommand SimpleCommandValue { get => (SimpleCommand)this.rawValue; }
+
+        public bool IsPipeList { get; set; }
+
+        public List<SimpleCommand> PipeListValue { get => (List<SimpleCommand>)this.rawValue; }
+
+        public bool IsShellCommand { get; set; }
+
+        public ShellCommand ShellCommandValue { get => (ShellCommand)this.rawValue; }
     }
 }

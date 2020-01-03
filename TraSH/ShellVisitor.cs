@@ -10,6 +10,28 @@
 
     public class ShellVisitor : ShellBaseVisitor<ParserResult>
     {
+        public override ParserResult VisitPipeList([NotNull] ShellParser.PipeListContext context)
+        {
+            if (context.pipeList() == null)
+            {
+                List<SimpleCommand> pipeList = new List<SimpleCommand> { 
+                    this.VisitSimpleCommand(context.simpleCommand()).SimpleCommandValue };
+
+                ParserResult result = new ParserResult(pipeList);
+                result.IsPipeList = true;
+
+                return result;
+            }
+            else
+            {
+                ParserResult contextResult = this.VisitPipeList(context.pipeList());
+                List<SimpleCommand> pipeList = contextResult.PipeListValue;
+                pipeList.Add(this.VisitSimpleCommand(context.simpleCommand()).SimpleCommandValue);
+
+                return contextResult;
+            }
+        }
+
         public override ParserResult VisitSimpleCommand([NotNull] ShellParser.SimpleCommandContext context)
         {
             string command = this.VisitCmd(context.cmd()).CmdValue;
