@@ -7,32 +7,24 @@
     using TraSH.Gen;
     using Antlr4.Runtime.Misc;
     using System.Linq;
+    using static TraSH.Gen.ShellParser;
+    using System.Reflection;
 
     public class ShellVisitor : ShellBaseVisitor<ParserResult>
     {
-        public override ParserResult VisitPipeList([NotNull] ShellParser.PipeListContext context)
+        public override ParserResult VisitPipeList([NotNull] PipeListContext context)
         {
-            if (context.pipeList() == null)
-            {
-                List<SimpleCommand> pipeList = new List<SimpleCommand> { 
-                    this.VisitSimpleCommand(context.simpleCommand()).SimpleCommandValue };
-
-                ParserResult result = new ParserResult(pipeList);
-                result.IsPipeList = true;
-
-                return result;
-            }
-            else
-            {
-                ParserResult contextResult = this.VisitPipeList(context.pipeList());
-                List<SimpleCommand> pipeList = contextResult.PipeListValue;
-                pipeList.Add(this.VisitSimpleCommand(context.simpleCommand()).SimpleCommandValue);
-
-                return contextResult;
-            }
+            return this.BuildList<PipeListContext, SimpleCommandContext, SimpleCommand>(
+                context.pipeList,
+                context.simpleCommand,
+                this.VisitPipeList,
+                this.VisitSimpleCommand,
+                "SimpleCommandValue",
+                "PipeListValue",
+                "IsPipeList");
         }
 
-        public override ParserResult VisitSimpleCommand([NotNull] ShellParser.SimpleCommandContext context)
+        public override ParserResult VisitSimpleCommand([NotNull] SimpleCommandContext context)
         {
             string command = this.VisitCmd(context.cmd()).CmdValue;
             IEnumerable<string> arguments = Enumerable.Empty<string>();
@@ -49,28 +41,19 @@
             return result;
         }
 
-        public override ParserResult VisitArgs([NotNull] ShellParser.ArgsContext context)
+        public override ParserResult VisitArgs([NotNull] ArgsContext context)
         {
-            if (context.args() == null)
-            {
-                List<string> argList = new List<string> { this.VisitArg(context.arg()).ArgValue };
-
-                ParserResult result = new ParserResult(argList);
-                result.IsArgList = true;
-
-                return result;
-            }
-            else
-            {
-                ParserResult contextResult = this.VisitArgs(context.args());
-                List<string> argList = contextResult.ArgListValue;
-                argList.Add(this.VisitArg(context.arg()).ArgValue);
-
-                return contextResult;
-            }
+            return this.BuildList<ArgsContext, ArgContext, string>(
+                context.args,
+                context.arg,
+                this.VisitArgs,
+                this.VisitArg,
+                "ArgValue",
+                "ArgListValue",
+                "IsArgList");
         }
 
-        public override ParserResult VisitArg([NotNull] ShellParser.ArgContext context)
+        public override ParserResult VisitArg([NotNull] ArgContext context)
         {
             if (context.STRING() != null)
             {
@@ -91,7 +74,7 @@
             }
         }
 
-        public override ParserResult VisitCmd([NotNull] ShellParser.CmdContext context)
+        public override ParserResult VisitCmd([NotNull] CmdContext context)
         {
             string cmdArg = this.VisitArg(context.arg()).ArgValue;
 
@@ -99,6 +82,47 @@
             result.IsCmd = true;
 
             return result;
+        }
+
+        private ParserResult BuildList<TListContext, TElContext, TElement>(
+            Func<TListContext> listContext,
+            Func<TElContext> elementContext,
+            Func<TListContext, ParserResult> visitList,
+            Func<TElContext, ParserResult> visitListElement,
+            string elementName,
+            string elementListName,
+            string typePresentName)
+        {
+            ParserResult elResult = visitListElement(elementContext());
+            TElement elValue = (TElement)elResult
+                .GetType()
+                .GetProperty(elementName)
+                .GetValue(elResult);
+
+            if (listContext() == null)
+            {
+                List<TElement> list = new List<TElement> { elValue };
+
+                ParserResult result = new ParserResult(list);
+
+                Type type = result.GetType();
+                PropertyInfo prop = type.GetProperty(typePresentName);
+                prop.SetValue(result, true);
+
+                return result;
+            }
+            else
+            {
+                ParserResult contextResult = visitList(listContext());
+                List<TElement> list = (List<TElement>)contextResult
+                    .GetType()
+                    .GetProperty(elementListName)
+                    .GetValue(contextResult);
+
+                list.Add(elValue);
+
+                return contextResult;
+            }
         }
     }
 }
