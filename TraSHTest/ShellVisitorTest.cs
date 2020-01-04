@@ -14,6 +14,37 @@ namespace TraSHTest
     public class ShellVisitorTest
     {
         [TestMethod]
+        public void ShellCommandOnlyPipesTest()
+        {
+            ShellParser shellParser = MakeParser("git reset --hard | echo");
+            ShellCommandContext context = shellParser.shellCommand();
+            ShellVisitor visitor = new ShellVisitor();
+
+            ParserResult result = visitor.Visit(context);
+            ShellCommand shellCommand = result.ShellCommandValue;
+
+            result.IsShellCommand.Should().BeTrue();
+            shellCommand.IsBackground.Should().BeFalse();
+            shellCommand.CommandList.Should().HaveCount(2);
+        }
+
+        [TestMethod]
+        public void ShellCommandSingleCommandTest()
+        {
+            ShellParser shellParser = MakeParser("git reset --hard");
+            ShellCommandContext context = shellParser.shellCommand();
+            ShellVisitor visitor = new ShellVisitor();
+
+            ParserResult result = visitor.Visit(context);
+            ShellCommand shellCommand = result.ShellCommandValue;
+
+            result.IsShellCommand.Should().BeTrue();
+            shellCommand.IsBackground.Should().BeFalse();
+            shellCommand.CommandList.Should().HaveCount(1);
+            shellCommand.CommandList[0].ToString().Should().Be("git reset --hard");
+        }
+
+        [TestMethod]
         public void PipeListOneCommandTest()
         {
             ShellParser shellParser = MakeParser("git reset --hard");
@@ -137,6 +168,19 @@ namespace TraSHTest
 
             result.IsArg.Should().BeTrue();
             result.ArgValue.Should().Be("wordarg");
+        }
+
+        [TestMethod]
+        public void ArgStringPipeTest()
+        {
+            ShellParser shellParser = MakeParser("\"12345 | echo asdf\"");
+            ArgContext context = shellParser.arg();
+            ShellVisitor visitor = new ShellVisitor();
+
+            ParserResult result = visitor.Visit(context);
+
+            result.IsArg.Should().BeTrue();
+            result.ArgValue.Should().Be("12345 | echo asdf");
         }
 
         [TestMethod]

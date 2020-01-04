@@ -1,10 +1,13 @@
-﻿using System;
+﻿using Antlr4.Runtime;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using TraSH.Builtins;
+using TraSH.Gen;
+using TraSH.Model;
 
 namespace TraSH
 {
@@ -35,26 +38,35 @@ namespace TraSH
                     return;
                 }
 
+                AntlrInputStream inputStream = new AntlrInputStream(e);
+                ShellLexer shellLexer = new ShellLexer(inputStream);
+                CommonTokenStream commonTokenStream = new CommonTokenStream(shellLexer);
+                ShellParser shellParser = new ShellParser(commonTokenStream);
+                ShellParser.ShellCommandContext context = shellParser.shellCommand();
+                ShellVisitor visitor = new ShellVisitor();
+                ParserResult result = visitor.Visit(context);
 
+                ShellCommand shellCommand = result.ShellCommandValue;
+                SimpleCommand firstCommand = shellCommand.CommandList[0];
 
                 IEnumerable<string> cmdArgs = e.Split(' ');
-                if (builtInsMap.ContainsKey(cmdArgs.First()))
+                if (builtInsMap.ContainsKey(firstCommand.Command))
                 {
-                    ExecuteBuiltInCommand(cmdArgs);
+                    ExecuteBuiltInCommand(firstCommand);
                 }
                 else
                 {
-                    ExecuteExternalCommand(cmdArgs);
+                    ExecuteExternalCommand(firstCommand);
                 }
             };
 
             lineEditor.Start();
         }
 
-        private static void ExecuteBuiltInCommand(IEnumerable<string> args)
+        private static void ExecuteBuiltInCommand(SimpleCommand simpleCommand)
         {
-            BuiltInCommand command = builtInsMap[args.First()];
-            string output = command.Execute(args.Skip(1));
+            BuiltInCommand command = builtInsMap[simpleCommand.Command];
+            string output = command.Execute(simpleCommand.Arguments);
 
             if (!string.IsNullOrEmpty(output))
             {
@@ -62,15 +74,15 @@ namespace TraSH
             }
         }
 
-        private static void ExecuteExternalCommand(IEnumerable<string> args)
+        private static void ExecuteExternalCommand(SimpleCommand simpleCommand)
         {
-            RunCmd(args, Console.Out);
+            RunCmd(simpleCommand, Console.Out);
         }
 
-        private static void RunCmd(IEnumerable<string> args, TextWriter outputWriter)
+        private static void RunCmd(SimpleCommand simpleCommand, TextWriter outputWriter)
         {
-            string commandName = args.First();
-            List<string> arguments = args.Skip(1).ToList();
+            string commandName = simpleCommand.Command;
+            List<string> arguments = simpleCommand.Arguments;
 
             Process proc = new Process();
             ProcessStartInfo psi = new ProcessStartInfo();
