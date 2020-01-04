@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
+using System.Diagnostics;
 using TraSH.Model;
 
 namespace TraSHTest
@@ -39,6 +40,23 @@ namespace TraSHTest
             string actualString = sc.ToString();
 
             actualString.Should().Be(expectedString);
+        }
+
+        [TestMethod]
+        public void AsProcessTest()
+        {
+            var sc = new SimpleCommand(
+                "git",
+                new List<string> { "reset", "--hard" });
+
+            Process proc = sc.AsProcess();
+
+            proc.StartInfo.FileName.Should().Be("git");
+            proc.StartInfo.ArgumentList.Should().BeEquivalentTo(new List<string> { "reset", "--hard" }, opt => opt.WithStrictOrdering());
+            proc.StartInfo.RedirectStandardInput.Should().BeTrue();
+            proc.StartInfo.RedirectStandardOutput.Should().BeTrue();
+            proc.StartInfo.RedirectStandardError.Should().BeTrue();
+            proc.StartInfo.UseShellExecute.Should().BeFalse();
         }
     }
 }

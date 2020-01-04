@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Text;
 
@@ -21,6 +22,23 @@
         public string Command { get; set; }
 
         public List<string> Arguments { get; set; }
+
+        public Process AsProcess()
+        {
+            Process proc = new Process();
+            ProcessStartInfo psi = new ProcessStartInfo();
+            psi.WorkingDirectory = Environment.CurrentDirectory;
+            psi.FileName = this.Command;
+            this.Arguments.ForEach(psi.ArgumentList.Add);
+            psi.RedirectStandardInput = true;
+            psi.RedirectStandardOutput = true;
+            psi.RedirectStandardError = true;
+            psi.UseShellExecute = false;
+
+            proc.StartInfo = psi;
+
+            return proc;
+        }
 
         public override string ToString()
         {

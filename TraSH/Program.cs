@@ -81,24 +81,7 @@ namespace TraSH
 
         private static void RunCmd(SimpleCommand simpleCommand, TextWriter outputWriter)
         {
-            string commandName = simpleCommand.Command;
-            List<string> arguments = simpleCommand.Arguments;
-
-            Process proc = new Process();
-            ProcessStartInfo psi = new ProcessStartInfo();
-            psi.WorkingDirectory = Environment.CurrentDirectory;
-            //psi.FileName = commandName;
-            //arguments.ForEach(a => psi.ArgumentList.Add(a));
-            psi.FileName = "cmd.exe";
-            psi.Arguments = "/c " + commandName + " " + string.Join(" ", arguments);
-            //psi.WindowStyle = ProcessWindowStyle.Hidden;
-            psi.RedirectStandardOutput = true;
-
-            psi.RedirectStandardError = true;
-
-            psi.UseShellExecute = false;
-
-            proc.StartInfo = psi;
+            Process proc = simpleCommand.AsProcess();
             proc.OutputDataReceived += new DataReceivedEventHandler((_, e) =>
             {
                 if (!string.IsNullOrEmpty(e.Data))
@@ -121,9 +104,9 @@ namespace TraSH
                 proc.BeginErrorReadLine();
                 proc.WaitForExit();
             }
-            catch (System.ComponentModel.Win32Exception e)
+            catch (System.ComponentModel.Win32Exception)
             {
-                Console.WriteLine($"{commandName}: Command not found");
+                Console.WriteLine($"{simpleCommand.Command}: Command not found");
             }
         }
     }
