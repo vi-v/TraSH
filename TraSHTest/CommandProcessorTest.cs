@@ -12,6 +12,7 @@ namespace TraSHTest
     using TraSH.Model;
     using System.IO;
     using TraSH;
+    using System.Linq;
 
     [TestClass]
     public class CommandProcessorTest
@@ -35,9 +36,10 @@ namespace TraSHTest
             Environment.CurrentDirectory.Should().Be(dirPath);
         }
 
+        [TestMethod]
         public void RunExternalCommandTest()
         {
-            string loremipsum = "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).";
+            string loremipsum = $"It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).{Environment.NewLine}";
             StringWriter stdOut = OutputStream(out StringBuilder outSb);
             StringWriter stdErr = OutputStream(out StringBuilder errSb);
             string file = TempFileWithContent(loremipsum);
@@ -45,7 +47,7 @@ namespace TraSHTest
             {
                 CommandList = new List<SimpleCommand>
                 {
-                    new SimpleCommand("type", new List<string> { file })
+                    new SimpleCommand(@"C:\Program Files (x86)\GnuWin32\bin\cat.exe", new List<string> { file })
                 }
             };
             CommandProcessor commandProcessor = new CommandProcessor(shellCommand, stdOut, stdErr);
@@ -56,13 +58,34 @@ namespace TraSHTest
             errSb.ToString().Should().BeNullOrEmpty();
         }
 
+        [TestMethod]
+        public void CommandDoesNotExistTest()
+        {
+            string bogusCommand = Guid.NewGuid().ToString();
+            StringWriter stdOut = OutputStream(out StringBuilder outSb);
+            StringWriter stdErr = OutputStream(out StringBuilder errSb);
+            ShellCommand shellCommand = new ShellCommand()
+            {
+                CommandList = new List<SimpleCommand>
+                {
+                    new SimpleCommand(bogusCommand, Enumerable.Empty<string>())
+                }
+            };
+            CommandProcessor commandProcessor = new CommandProcessor(shellCommand, stdOut, stdErr);
+
+            commandProcessor.Run();
+
+            outSb.ToString().Should().BeNullOrEmpty();
+            errSb.ToString().Trim().Should().Be($"{bogusCommand}: Command not found");
+        }
+
         private static string TempFileWithContent(string content)
         {
             string tempFile = Path.GetTempFileName();
 
             using (var writer = new StreamWriter(tempFile, false))
             {
-                writer.WriteLine(content);
+                writer.Write(content);
             }
 
             return tempFile;
