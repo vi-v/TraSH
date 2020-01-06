@@ -2,14 +2,14 @@
 // This file is subject to the terms and conditions defined in
 // LICENSE, which is part of this source code package
 
-using FluentAssertions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
-using System.Diagnostics;
-using TraSH.Model;
-
 namespace TraSHTest
 {
+    using FluentAssertions;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using TraSH.Model;
+
     [TestClass]
     public class SimpleCommandTest
     {

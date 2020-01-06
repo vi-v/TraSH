@@ -2,16 +2,16 @@
 // This file is subject to the terms and conditions defined in
 // LICENSE, which is part of this source code package
 
-using FluentAssertions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using TraSH;
-
 namespace TraSHTest
 {
+    using FluentAssertions;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using TraSH;
+
     [TestClass]
     public class HistoryManagerTest
     {

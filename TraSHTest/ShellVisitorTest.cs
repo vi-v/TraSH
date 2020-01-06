@@ -2,18 +2,18 @@
 // This file is subject to the terms and conditions defined in
 // LICENSE, which is part of this source code package
 
-using Antlr4.Runtime;
-using FluentAssertions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
-using System.Linq;
-using TraSH;
-using TraSH.Gen;
-using TraSH.Model;
-using static TraSH.Gen.ShellParser;
-
 namespace TraSHTest
 {
+    using Antlr4.Runtime;
+    using FluentAssertions;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using System.Collections.Generic;
+    using System.Linq;
+    using TraSH;
+    using TraSH.Gen;
+    using TraSH.Model;
+    using static TraSH.Gen.ShellParser;
+
     [TestClass]
     public class ShellVisitorTest
     {
