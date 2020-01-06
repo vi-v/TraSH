@@ -1,4 +1,8 @@
-﻿using Antlr4.Runtime;
+﻿// MIT License - Copyright (c) Vishnu Vijayan
+// This file is subject to the terms and conditions defined in
+// LICENSE, which is part of this source code package
+
+using Antlr4.Runtime;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;

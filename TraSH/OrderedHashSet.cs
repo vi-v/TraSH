@@ -1,4 +1,8 @@
-﻿/* 
+﻿// MIT License - Copyright (c) Vishnu Vijayan
+// This file is subject to the terms and conditions defined in
+// LICENSE, which is part of this source code package
+
+/* 
  * https://gmamaladze.wordpress.com/2013/07/25/hashset-that-preserves-insertion-order-or-net-implementation-of-linkedhashset/ 
  */
 

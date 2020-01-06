@@ -1,4 +1,8 @@
-﻿namespace TraSH
+﻿// MIT License - Copyright (c) Vishnu Vijayan
+// This file is subject to the terms and conditions defined in
+// LICENSE, which is part of this source code package
+
+namespace TraSH
 {
     using System;
     using System.Collections.Generic;

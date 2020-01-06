@@ -4,3 +4,4 @@ Gen/
 .antlr/
 *.jar
 .vs/
+*.licenseheader 
