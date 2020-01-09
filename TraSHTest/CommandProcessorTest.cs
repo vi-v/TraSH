@@ -17,11 +17,15 @@ namespace TraSHTest
     [TestClass]
     public class CommandProcessorTest
     {
+        private static readonly string catCommand = @"C:\Program Files (x86)\GnuWin32\bin\cat.exe";
+        private static readonly string wcCommand = @"C:\Program Files (x86)\GnuWin32\bin\wc.exe";
+        private static readonly string loremipsum = $"It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).";
+
         [TestMethod]
         public void RunBuiltinCommandTest()
         {
             string dirPath = Path.Join(Path.GetTempPath(), Guid.NewGuid().ToString());
-            DirectoryInfo newDir = Directory.CreateDirectory(dirPath);
+            Directory.CreateDirectory(dirPath);
             ShellCommand shellCommand = new ShellCommand()
             {
                 CommandList = new List<SimpleCommand>
@@ -39,7 +43,6 @@ namespace TraSHTest
         [TestMethod]
         public void RunExternalCommandTest()
         {
-            string loremipsum = $"It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).{Environment.NewLine}";
             StringWriter stdOut = OutputStream(out StringBuilder outSb);
             StringWriter stdErr = OutputStream(out StringBuilder errSb);
             string file = TempFileWithContent(loremipsum);
@@ -47,7 +50,7 @@ namespace TraSHTest
             {
                 CommandList = new List<SimpleCommand>
                 {
-                    new SimpleCommand(@"C:\Program Files (x86)\GnuWin32\bin\cat.exe", new List<string> { file })
+                    new SimpleCommand(catCommand, new List<string> { file })
                 }
             };
             CommandProcessor commandProcessor = new CommandProcessor(shellCommand, stdOut, stdErr);
@@ -77,6 +80,28 @@ namespace TraSHTest
 
             outSb.ToString().Should().BeNullOrEmpty();
             errSb.ToString().Trim().Should().Be($"{bogusCommand}: Command not found");
+        }
+
+        [TestMethod]
+        public void PipelineTest()
+        {
+            StringWriter stdOut = OutputStream(out StringBuilder outSb);
+            StringWriter stdErr = OutputStream(out StringBuilder errSb);
+            string file = TempFileWithContent(loremipsum);
+            ShellCommand shellCommand = new ShellCommand()
+            {
+                CommandList = new List<SimpleCommand>
+                {
+                    new SimpleCommand(catCommand, new List<string> { file }),
+                    new SimpleCommand(wcCommand, new List<string> { "-w" }),
+                }
+            };
+            CommandProcessor commandProcessor = new CommandProcessor(shellCommand, stdOut, stdErr);
+
+            commandProcessor.Run();
+
+            outSb.ToString().Should().Be($"104{Environment.NewLine}");
+            errSb.ToString().Should().BeNullOrEmpty();
         }
 
         private static string TempFileWithContent(string content)

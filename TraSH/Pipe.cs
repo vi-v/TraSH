@@ -18,6 +18,8 @@ namespace TraSH
         private readonly Process outProc;
         private readonly CancellationTokenSource tokenSource;
 
+        private string pipeContent = "";
+
         public Pipe(Process inProc, Process outProc)
         {
             this.inProc = inProc;
@@ -34,7 +36,7 @@ namespace TraSH
             this.tokenSource = new CancellationTokenSource();
         }
 
-        public Pipe(Process inProc, StreamWriter outStreamWriter)
+        public Pipe(Process inProc, TextWriter outStreamWriter)
         {
             this.inProc = inProc;
             this.OutStreamWriter = outStreamWriter;
@@ -92,17 +94,24 @@ namespace TraSH
 
         private void PipeOutput(CancellationToken token)
         {
-            while (true)
+            while (!this.InStreamReader.EndOfStream)
             {
+                //this.InProcess.HasExited;
+                //token.IsCancellationRequested;
+
                 if (token.IsCancellationRequested)
                 {
                     string content = this.InStreamReader.ReadToEnd();
+                    this.pipeContent += content;
+
                     this.OutStreamWriter.Write(content);
                     break;
                 }
                 else if (!this.InStreamReader.EndOfStream)
                 {
                     char content = (char)this.InStreamReader.Read();
+                    this.pipeContent += content;
+
                     this.OutStreamWriter.Write(content);
 
                     if (content == 0)

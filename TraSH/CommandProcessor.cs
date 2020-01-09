@@ -46,21 +46,44 @@ namespace TraSH
                 return;
             }
 
-            SimpleCommand firstCommand = shellCommand.CommandList[0];
-            if (this.builtInsMap.ContainsKey(firstCommand.Command))
+            List<Process> procList = new List<Process>();
+            List<Pipe> pipeList = new List<Pipe>();
+
+            Process prevProc = null;
+            foreach (SimpleCommand command in this.shellCommand.CommandList)
             {
-                this.ExecuteBuiltinCommand(firstCommand);
+                Process proc = command.AsProcess();
+
+                if (prevProc == null)
+                {
+                    proc.StartInfo.RedirectStandardInput = false;
+                }
+                else
+                {
+                    Pipe pipe = new Pipe(prevProc, proc);
+                    pipeList.Add(pipe);
+                    prevProc.Exited += (_, e) => { pipe.Close(); };
+                }
+
+                procList.Add(proc);
+                prevProc = proc;
             }
-            else
+
+            Pipe endPipe = new Pipe(prevProc, this.outWriter);
+            pipeList.Add(endPipe);
+
+            try
             {
-                try
-                {
-                    ExecuteExternalCommand(firstCommand);
-                }
-                catch (System.ComponentModel.Win32Exception)
-                {
-                    this.errWriter.WriteLine($"{firstCommand.Command}: Command not found");
-                }
+                procList.ForEach(p => p.Start());
+                pipeList.ForEach(p => p.Start());
+
+                procList.ForEach(p => p.WaitForExit());
+                endPipe.Wait();
+            }
+            catch (System.ComponentModel.Win32Exception)
+            {
+                this.errWriter.WriteLine($": Command not found");
+                procList.ForEach(p => p.Kill());
             }
         }
 
@@ -80,7 +103,7 @@ namespace TraSH
         private void ExecuteBuiltinCommand(SimpleCommand command)
         {
             BuiltInCommand builtInCommand = this.builtInsMap[command.Command];
-            
+
             string output = builtInCommand.Execute(command.Arguments);
 
             this.outWriter.Write(output);
@@ -90,13 +113,15 @@ namespace TraSH
         {
             new Thread(() =>
             {
+                Debug.WriteLine($"{DateTime.Now.ToString("hh:mm:ss fffffff")} Started readstream");
                 bool shouldBreak = false;
                 while (!shouldBreak)
                 {
                     int current;
                     while ((current = reader.Read()) >= 0)
                     {
-                        outWriter.Write((char)current);
+                        //Debug.WriteLine($"{DateTime.Now.ToString("hh:mm:ss fffffff")} {(char)current}");
+                        Console.Out.Write((char)current);
                     }
                     shouldBreak = true;
                 }
