@@ -66,16 +66,20 @@ namespace TraSH
 
         public void Add(string newLine)
         {
-            this.numCommands++;
-            string escapedLine = this.Escape(newLine);
+            var line = this.Escape(newLine).Trim();
 
-            using (StreamWriter fileWriter = new StreamWriter(this.filepath, append: true))
+            if (!string.IsNullOrEmpty(line))
             {
-                this.historyList.Add(escapedLine);
-                fileWriter.WriteLine(escapedLine);
-            }
+                this.numCommands++;
 
-            this.autocompleteTrie.Add(escapedLine, this.numCommands);
+                using (StreamWriter fileWriter = new StreamWriter(this.filepath, append: true))
+                {
+                    this.historyList.Add(line);
+                    fileWriter.WriteLine(line);
+                }
+
+                this.autocompleteTrie.Add(line, this.numCommands);
+            }
         }
 
         public IEnumerable<string> AutoComplete(string prefix)

@@ -7,7 +7,7 @@ namespace TraSH.Builtins
     using System;
     using System.Collections.Generic;
 
-    public class Clear : BuiltInCommand
+    public class Clear : IBuiltInCommand
     {
         public string Execute(IEnumerable<string> args)
         {

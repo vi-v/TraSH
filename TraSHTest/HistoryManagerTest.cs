@@ -116,6 +116,25 @@ namespace TraSHTest
         }
 
         [TestMethod]
+        public void IgnoresEmptyLine()
+        {
+            string filepath = Path.GetTempFileName();
+            var hm = new HistoryManager(filepath);
+
+            hm.Start().Wait();
+            hm.Add("c1");
+            hm.Add("  ");
+            hm.Add("c2");
+            IEnumerable<string> actualHistory = hm.GetHistory();
+            IEnumerable<string> fileHistory = hm.GetFileHistory();
+
+            actualHistory.Should().BeEquivalentTo(new List<string> { "c1", "c2" });
+            fileHistory.Should().BeEquivalentTo(new List<string> { "c1", "c2" });
+
+            File.Delete(filepath);
+        }
+
+        [TestMethod]
         public void TestMultilineLine()
         {
             string filepath = Path.GetTempFileName();

@@ -8,21 +8,13 @@ namespace TraSH
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
-    using System.Text;
+    using System.Linq;
     using System.Threading;
     using TraSH.Builtins;
     using TraSH.Model;
 
     public class CommandProcessor
     {
-        private readonly Dictionary<string, BuiltInCommand> builtInsMap = new Dictionary<string, BuiltInCommand>()
-        {
-            { "cls", new Clear() },
-            { "clear", new Clear() },
-            { "cd", new ChangeDirectory() },
-            { "exit", new Exit() }
-        };
-
         private readonly ShellCommand shellCommand;
         private readonly TextWriter outWriter;
         private readonly TextWriter errWriter;
@@ -46,12 +38,30 @@ namespace TraSH
                 return;
             }
 
+            if (this.shellCommand.CommandList.Any(c => BuiltInCommands.Map.ContainsKey(c.Command)) && this.shellCommand.CommandList.Count > 1)
+            {
+                this.errWriter.WriteLine($"Cannot run commands together: {string.Join(',', this.shellCommand.CommandList.Select(c => c.Command))}");
+                return;
+            }
+
+            if (BuiltInCommands.Map.ContainsKey(this.shellCommand.CommandList[0].Command))
+            {
+                this.ExecuteBuiltinCommand(this.shellCommand.CommandList[0]);
+                return;
+            }
+
             List<Process> procList = new List<Process>();
             List<Pipe> pipeList = new List<Pipe>();
 
             Process prevProc = null;
             foreach (SimpleCommand command in this.shellCommand.CommandList)
             {
+                if (!CommandValidator.Validate(command.Command))
+                {
+                    this.errWriter.WriteLine($"Command not found: {command.Command}");
+                    return;
+                }
+
                 Process proc = command.AsProcess();
 
                 if (prevProc == null)
@@ -82,7 +92,6 @@ namespace TraSH
             }
             catch (System.ComponentModel.Win32Exception)
             {
-                this.errWriter.WriteLine($": Command not found");
                 procList.ForEach(p => p.Kill());
             }
         }
@@ -102,7 +111,7 @@ namespace TraSH
 
         private void ExecuteBuiltinCommand(SimpleCommand command)
         {
-            BuiltInCommand builtInCommand = this.builtInsMap[command.Command];
+            var builtInCommand = BuiltInCommands.Map[command.Command];
 
             string output = builtInCommand.Execute(command.Arguments);
 

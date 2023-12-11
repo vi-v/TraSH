@@ -6,7 +6,7 @@ namespace TraSH.Builtins
 {
     using System.Collections.Generic;
 
-    public interface BuiltInCommand
+    public interface IBuiltInCommand
     {
         string Execute(IEnumerable<string> args);
     }

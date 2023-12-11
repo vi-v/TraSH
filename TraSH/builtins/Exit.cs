@@ -8,7 +8,7 @@ namespace TraSH.Builtins
     using System.Collections.Generic;
     using System.Text;
 
-    public class Exit : BuiltInCommand
+    public class Exit : IBuiltInCommand
     {
         public string Execute(IEnumerable<string> args)
         {

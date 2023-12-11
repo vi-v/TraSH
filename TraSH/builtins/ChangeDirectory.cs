@@ -8,9 +8,8 @@ namespace TraSH.Builtins
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Text;
 
-    public class ChangeDirectory : BuiltInCommand
+    public class ChangeDirectory : IBuiltInCommand
     {
         public string Execute(IEnumerable<string> args)
         {

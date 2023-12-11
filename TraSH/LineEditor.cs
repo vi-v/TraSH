@@ -8,8 +8,6 @@ namespace TraSH
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Text;
-    using System.Threading;
     using System.Threading.Tasks;
     using TraSH.Builtins;
     using TraSH.Buffer;
@@ -166,9 +164,8 @@ namespace TraSH
         {
             if (this.consoleBuffer.IsEmpty)
             {
-                BuiltInCommand exit = new Exit();
                 Console.WriteLine();
-                exit.Execute(Enumerable.Empty<string>());
+                BuiltInCommands.Exit.Execute(Enumerable.Empty<string>());
             }
             else if (this.consoleBuffer.CursorPosition.X < this.consoleBuffer.Size.X)
             {

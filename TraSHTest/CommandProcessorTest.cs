@@ -64,14 +64,14 @@ namespace TraSHTest
         [TestMethod]
         public void CommandDoesNotExistTest()
         {
-            string bogusCommand = Guid.NewGuid().ToString();
+            string invalidCommand = Guid.NewGuid().ToString();
             StringWriter stdOut = OutputStream(out StringBuilder outSb);
             StringWriter stdErr = OutputStream(out StringBuilder errSb);
             ShellCommand shellCommand = new ShellCommand()
             {
                 CommandList = new List<SimpleCommand>
                 {
-                    new SimpleCommand(bogusCommand, Enumerable.Empty<string>())
+                    new SimpleCommand(invalidCommand, Enumerable.Empty<string>())
                 }
             };
             CommandProcessor commandProcessor = new CommandProcessor(shellCommand, stdOut, stdErr);
@@ -79,7 +79,28 @@ namespace TraSHTest
             commandProcessor.Run();
 
             outSb.ToString().Should().BeNullOrEmpty();
-            errSb.ToString().Trim().Should().Be($"{bogusCommand}: Command not found");
+            errSb.ToString().Trim().Should().Be($"Command not found: {invalidCommand}");
+        }
+
+        [TestMethod]
+        public void DoesNotRunPipelineWithBuiltIn()
+        {
+            StringWriter stdOut = OutputStream(out StringBuilder outSb);
+            StringWriter stdErr = OutputStream(out StringBuilder errSb);
+            ShellCommand shellCommand = new ShellCommand()
+            {
+                CommandList = new List<SimpleCommand>
+                {
+                    new SimpleCommand(catCommand, new List<string> { }),
+                    new SimpleCommand("cd", Enumerable.Empty<string>())
+                }
+            };
+            CommandProcessor commandProcessor = new CommandProcessor(shellCommand, stdOut, stdErr);
+
+            commandProcessor.Run();
+
+            outSb.ToString().Should().BeNullOrEmpty();
+            errSb.ToString().Trim().Should().Be($"Cannot run commands together: {catCommand},cd");
         }
 
         [TestMethod]
