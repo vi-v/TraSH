@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-
+    <RootNamespace>TraSH.Test</RootNamespace>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -14,11 +14,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TraSH\TraSH.csproj" />
+    <ProjectReference Include="..\Core\Core.csproj" />
   </ItemGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="java -jar $(SolutionDir)TraSH\antlr-4.7.2-complete.jar -Dlanguage=CSharp -package TraSH.Gen -o $(SolutionDir)TraSH\Gen\ -visitor $(SolutionDir)TraSH\Shell.g4" />
+    <Exec Command="java -jar $(SolutionDir)antlr-4.7.2-complete.jar -Dlanguage=CSharp -package TraSH.Gen -o $(SolutionDir)Core\Gen\ -visitor $(SolutionDir)Core\Shell.g4" />
   </Target>
 
 </Project>

@@ -1,9 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
-    <StartupObject>TraSH.Program</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,6 +16,6 @@
   </ItemGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="java -jar $(SolutionDir)TraSH\antlr-4.7.2-complete.jar -Dlanguage=CSharp -package TraSH.Gen -o $(SolutionDir)TraSH\Gen\ -visitor $(SolutionDir)TraSH\Shell.g4" />
+    <Exec Command="java -jar $(SolutionDir)antlr-4.7.2-complete.jar -Dlanguage=CSharp -package TraSH.Gen -o $(SolutionDir)Core\Gen\ -visitor $(SolutionDir)Core\Shell.g4" />
   </Target>
 </Project>

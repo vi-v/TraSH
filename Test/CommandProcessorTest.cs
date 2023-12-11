@@ -1,8 +1,8 @@
-﻿// MIT License - Copyright (c) Vishnu Vijayan
+// MIT License - Copyright (c) Vishnu Vijayan
 // This file is subject to the terms and conditions defined in
 // LICENSE, which is part of this source code package
 
-namespace TraSHTest
+namespace TraSH.Test
 {
     using System;
     using System.Collections.Generic;
@@ -80,6 +80,27 @@ namespace TraSHTest
 
             outSb.ToString().Should().BeNullOrEmpty();
             errSb.ToString().Trim().Should().Be($"Command not found: {invalidCommand}");
+        }
+
+        [TestMethod]
+        public void DoesNotRunPipelineWithBuiltIn()
+        {
+            StringWriter stdOut = OutputStream(out StringBuilder outSb);
+            StringWriter stdErr = OutputStream(out StringBuilder errSb);
+            ShellCommand shellCommand = new ShellCommand()
+            {
+                CommandList = new List<SimpleCommand>
+                {
+                    new SimpleCommand(catCommand, new List<string> { }),
+                    new SimpleCommand("cd", Enumerable.Empty<string>())
+                }
+            };
+            CommandProcessor commandProcessor = new CommandProcessor(shellCommand, stdOut, stdErr);
+
+            commandProcessor.Run();
+
+            outSb.ToString().Should().BeNullOrEmpty();
+            errSb.ToString().Trim().Should().Be($"Cannot run commands together: {catCommand},cd");
         }
 
         [TestMethod]
