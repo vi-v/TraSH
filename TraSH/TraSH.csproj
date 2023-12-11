@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <StartupObject>TraSH.Program</StartupObject>
   </PropertyGroup>
 
@@ -10,7 +10,6 @@
     <PackageReference Include="Antlr" Version="3.5.0.2" />
     <PackageReference Include="Antlr4.Runtime.Standard" Version="4.7.2" />
     <PackageReference Include="TextCopy" Version="3.0.0" />
-    <PackageReference Include="VDS.Common" Version="1.10.0" />
     <PackageReference Include="TrieNet" Version="1.0.3.26316" />
   </ItemGroup>
 
