@@ -12,7 +12,7 @@ namespace TraSH
     using TraSH.Builtins;
     using TraSH.Buffer;
 
-    public class LineEditor
+    internal sealed class LineEditor
     {
         public EventHandler<string> LineReceived;
 

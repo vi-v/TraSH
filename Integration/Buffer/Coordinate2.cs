@@ -4,11 +4,8 @@
 
 namespace TraSH.Buffer
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
 
-    public sealed class Coordinate2
+    internal sealed class Coordinate2
     {
         public Coordinate2(int x, int y)
         {

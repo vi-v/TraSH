@@ -9,7 +9,7 @@ namespace TraSH.Buffer
     using System.Linq;
     using System.Text;
 
-    public class SingleLineConsoleBuffer : IConsoleBuffer
+    internal sealed class SingleLineConsoleBuffer : IConsoleBuffer
     {
         private readonly StringBuilder buffer;
         private readonly string prompt;

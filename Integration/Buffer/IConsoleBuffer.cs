@@ -4,10 +4,9 @@
 
 namespace TraSH.Buffer
 {
-    using System;
     using System.Collections.Generic;
 
-    public interface IConsoleBuffer
+    internal interface IConsoleBuffer
     {
         bool IsEmpty { get; }
 

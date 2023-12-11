@@ -8,7 +8,7 @@ namespace TraSH.Buffer
     using System.Collections.Generic;
     using System.Text;
 
-    public class MultiLineConsoleBuffer
+    internal sealed class MultiLineConsoleBuffer
     {
         private readonly Func<string> getLeftPrompt;
         private readonly Func<string> getRightPrompt;

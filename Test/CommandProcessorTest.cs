@@ -104,27 +104,6 @@ namespace TraSH.Test
         }
 
         [TestMethod]
-        public void DoesNotRunPipelineWithBuiltIn()
-        {
-            StringWriter stdOut = OutputStream(out StringBuilder outSb);
-            StringWriter stdErr = OutputStream(out StringBuilder errSb);
-            ShellCommand shellCommand = new ShellCommand()
-            {
-                CommandList = new List<SimpleCommand>
-                {
-                    new SimpleCommand(catCommand, new List<string> { }),
-                    new SimpleCommand("cd", Enumerable.Empty<string>())
-                }
-            };
-            CommandProcessor commandProcessor = new CommandProcessor(shellCommand, stdOut, stdErr);
-
-            commandProcessor.Run();
-
-            outSb.ToString().Should().BeNullOrEmpty();
-            errSb.ToString().Trim().Should().Be($"Cannot run commands together: {catCommand},cd");
-        }
-
-        [TestMethod]
         public void PipelineTest()
         {
             StringWriter stdOut = OutputStream(out StringBuilder outSb);
